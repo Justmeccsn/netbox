@@ -600,6 +600,10 @@ class IPAddressListView(ObjectListView):
     table = tables.IPAddressDetailTable
     template_name = 'ipam/ipaddress_list.html'
 
+    def get(self, request):
+        self.queryset = self.queryset.filter_access(request.user)
+        return super(IPAddressListView, self).get(request)
+
 
 class IPAddressView(View):
 

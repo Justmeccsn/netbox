@@ -13,6 +13,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from dcim.models import Interface
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
+from utilities.managers import ObjectFilterManager
 from utilities.models import CreatedUpdatedModel
 from utilities.sql import NullsFirstQuerySet
 from utilities.utils import csv_format
@@ -369,7 +370,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             return None
 
 
-class IPAddressManager(models.Manager):
+class IPAddressManager(ObjectFilterManager):
 
     def get_queryset(self):
         """
