@@ -98,6 +98,10 @@ class VRFListView(ObjectListView):
     table = tables.VRFTable
     template_name = 'ipam/vrf_list.html'
 
+    def get(self, request):
+        self.queryset = self.queryset.filter_access(request.user)
+        return super(VRFListView, self).get(request)
+
 
 class VRFView(View):
 
@@ -428,6 +432,10 @@ class PrefixListView(ObjectListView):
         limit = None if request.GET.get('expand') or request.GET.get('q') else 0
         return self.queryset.annotate_depth(limit=limit)
 
+    def get(self, request):
+        self.queryset = self.queryset.filter_access(request.user)
+        return super(PrefixListView, self).get(request)
+
 
 class PrefixView(View):
 
@@ -749,6 +757,10 @@ class VLANListView(ObjectListView):
     filter_form = forms.VLANFilterForm
     table = tables.VLANDetailTable
     template_name = 'ipam/vlan_list.html'
+
+    def get(self, request):
+        self.queryset = self.queryset.filter_access(request.user)
+        return super(VLANListView, self).get(request)
 
 
 class VLANView(View):

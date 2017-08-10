@@ -9,6 +9,7 @@ from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.utils import csv_format
+from utilities.sql import ObjectFilterQuerySet
 from utilities.models import CreatedUpdatedModel
 from .constants import *
 
@@ -85,6 +86,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     csv_headers = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
 
