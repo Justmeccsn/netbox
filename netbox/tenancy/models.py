@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
@@ -17,6 +18,8 @@ class TenantGroup(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+    access_group = models.ManyToManyField(blank=True, related_name='tenant_group', to=Group, verbose_name='Access Group')
+    access_users = models.ManyToManyField(blank=True, related_name='tenant_group', to=User, verbose_name='Access Users')
 
     class Meta:
         ordering = ['name']
