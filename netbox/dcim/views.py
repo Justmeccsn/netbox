@@ -364,6 +364,10 @@ class RackListView(ObjectListView):
     table = tables.RackDetailTable
     template_name = 'dcim/rack_list.html'
 
+    def get(self, request):
+        self.queryset = self.queryset.filter_access(user=request.user)
+        return super(RackListView, self).get(request)
+
 
 class RackElevationListView(View):
     """

@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db.models import Manager
+from .sql import ObjectFilterQuerySet, FilterNaturalOrderByQuerySet
 
 
 class NaturalOrderByManager(Manager):
@@ -30,3 +31,19 @@ class NaturalOrderByManager(Manager):
         ordering = fields[0:-1] + (id1, id2, id3)
 
         return queryset.order_by(*ordering)
+
+
+class ObjectFilterManager(Manager):
+    def get_queryset(self):
+        return ObjectFilterQuerySet(self.model, using=self._db)
+
+    def filter_access(self, user):
+        self.get_queryset().filter_access(user)
+
+
+class FilterNaturalOrderByManager(ObjectFilterManager):
+    def get_queryset(self):
+        return FilterNaturalOrderByQuerySet(self.model, using=self._db)
+
+    def natural_order_by(self, *fields):
+        return self.get_queryset().natural_order_by(*fields)

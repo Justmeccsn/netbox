@@ -21,7 +21,7 @@ from extras.models import CustomFieldModel, CustomField, CustomFieldValue, Image
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
-from utilities.managers import NaturalOrderByManager
+from utilities.managers import NaturalOrderByManager, FilterNaturalOrderByManager, ObjectFilterManager
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
 from .constants import *
@@ -181,10 +181,11 @@ class RackRole(models.Model):
         return "{}?role={}".format(reverse('dcim:rack_list'), self.slug)
 
 
-class RackManager(NaturalOrderByManager):
+class RackManager(FilterNaturalOrderByManager):
 
     def get_queryset(self):
-        return self.natural_order_by('site__name', 'name')
+        queryset = super(RackManager, self).get_queryset()
+        return queryset.natural_order_by('site__name', 'name')
 
 
 @python_2_unicode_compatible
