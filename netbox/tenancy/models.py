@@ -11,6 +11,27 @@ from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
 
 
+class TenantGroupQuerySet(models.query.QuerySet):
+    def filter_access(self, user):
+        if not user.is_superuser:
+            try:
+                return self.filter(
+                    models.Q(access_group__user=user) |
+                    models.Q(access_users=user)
+                )
+            except TypeError:
+                return self.none()
+        return self
+
+
+class TenantGroupManager(models.Manager):
+    def get_queryset(self):
+        return TenantGroupQuerySet(self.model, using=self._db)
+
+    def filter_access(self, user):
+        self.get_queryset().filter_access(user)
+
+
 @python_2_unicode_compatible
 class TenantGroup(models.Model):
     """
@@ -21,6 +42,8 @@ class TenantGroup(models.Model):
     access_group = models.ManyToManyField(blank=True, related_name='tenant_group', to=Group, verbose_name='Access Group')
     access_users = models.ManyToManyField(blank=True, related_name='tenant_group', to=User, verbose_name='Access Users')
 
+    objects = TenantGroupManager()
+
     class Meta:
         ordering = ['name']
 
@@ -29,6 +52,27 @@ class TenantGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
+
+
+class TenantQuerySet(models.query.QuerySet):
+    def filter_access(self, user):
+        if not user.is_superuser:
+            try:
+                return self.filter(
+                    models.Q(group__access_group__user=user) |
+                    models.Q(group__access_users=user)
+                )
+            except TypeError:
+                return self.none()
+        return self
+
+
+class TenantManager(models.Manager):
+    def get_queryset(self):
+        return TenantQuerySet(self.model, using=self._db)
+
+    def filter_access(self, user):
+        self.get_queryset().filter_access(user)
 
 
 @python_2_unicode_compatible
@@ -45,6 +89,8 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     csv_headers = ['name', 'slug', 'group', 'description']
+
+    objects = TenantManager()
 
     class Meta:
         ordering = ['group', 'name']
