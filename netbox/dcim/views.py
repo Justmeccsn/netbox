@@ -839,6 +839,10 @@ class DeviceListView(ObjectListView):
     table = tables.DeviceDetailTable
     template_name = 'dcim/device_list.html'
 
+    def get(self, request):
+        self.queryset = self.queryset.filter_access(user=request.user)
+        return super(DeviceListView, self).get(request)
+
 
 class DeviceView(View):
 

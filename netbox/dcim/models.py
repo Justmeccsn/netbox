@@ -764,10 +764,11 @@ class Platform(models.Model):
         return "{}?platform={}".format(reverse('dcim:device_list'), self.slug)
 
 
-class DeviceManager(NaturalOrderByManager):
+class DeviceManager(FilterNaturalOrderByManager):
 
     def get_queryset(self):
-        return self.natural_order_by('name')
+        queryset = super(DeviceManager, self).get_queryset()
+        return queryset.natural_order_by('name')
 
 
 @python_2_unicode_compatible
