@@ -38,7 +38,7 @@ class ObjectFilterManager(Manager):
         return ObjectFilterQuerySet(self.model, using=self._db)
 
     def filter_access(self, user):
-        self.get_queryset().filter_access(user)
+        return self.get_queryset().filter_access(user)
 
 
 class FilterNaturalOrderByManager(ObjectFilterManager):
