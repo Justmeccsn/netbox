@@ -19,7 +19,7 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = TenantGroup
-        fields = ['name', 'slug']
+        fields = ['name', 'slug', 'access_group', 'access_users']
 
 
 #
