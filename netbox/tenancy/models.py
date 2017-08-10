@@ -11,6 +11,16 @@ from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
 
 
+class TenantGroupQuerySet(models.query.QuerySet):
+    def filter_access(self, user):
+        if not user.is_superuser:
+            try:
+                return self.filter(tenants__users__in=[user])
+            except TypeError:
+                return self.none()
+        return self
+
+
 @python_2_unicode_compatible
 class TenantGroup(models.Model):
     """
@@ -18,6 +28,8 @@ class TenantGroup(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+
+    objects = TenantGroupQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -27,6 +39,16 @@ class TenantGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
+
+
+class TenantQuerySet(models.query.QuerySet):
+    def filter_access(self, user):
+        if not user.is_superuser:
+            try:
+                return self.filter(users__in=[user])
+            except TypeError:
+                return self.none()
+        return self
 
 
 @python_2_unicode_compatible
@@ -44,6 +66,8 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     users = models.ManyToManyField(blank=True, related_name='tenants', to=User, verbose_name='Users')
 
     csv_headers = ['name', 'slug', 'group', 'description']
+
+    objects = TenantQuerySet.as_manager()
 
     class Meta:
         ordering = ['group', 'name']
