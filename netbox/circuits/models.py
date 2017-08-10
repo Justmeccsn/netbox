@@ -8,6 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
+from utilities.managers import ObjectFilterManager
 from utilities.utils import csv_format
 from utilities.models import CreatedUpdatedModel
 from .constants import *
@@ -101,6 +102,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    objects = ObjectFilterManager()
 
     csv_headers = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
 

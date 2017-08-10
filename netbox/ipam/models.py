@@ -38,6 +38,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
+    objects = ObjectFilterManager()
+
     class Meta:
         ordering = ['name']
         verbose_name = 'VRF'
@@ -253,6 +255,8 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
+
+    objects = ObjectFilterManager()
 
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
@@ -536,6 +540,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    objects = ObjectFilterManager()
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
