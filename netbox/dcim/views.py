@@ -1853,6 +1853,12 @@ class ConsoleConnectionsListView(ObjectListView):
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/console_connections_list.html'
 
+    def get(self, request):
+        self.queryset = self.queryset.filter(
+            device__in=Device.objects.filter_access(request.user)
+        )
+        return super(ConsoleConnectionsListView, self).get(request)
+
 
 class PowerConnectionsListView(ObjectListView):
     queryset = PowerPort.objects.select_related('device', 'power_outlet__device').filter(power_outlet__isnull=False)\
@@ -1862,6 +1868,12 @@ class PowerConnectionsListView(ObjectListView):
     table = tables.PowerConnectionTable
     template_name = 'dcim/power_connections_list.html'
 
+    def get(self, request):
+        self.queryset = self.queryset.filter(
+            device__in=Device.objects.filter_access(request.user)
+        )
+        return super(PowerConnectionsListView, self).get(request)
+
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')\
@@ -1870,6 +1882,13 @@ class InterfaceConnectionsListView(ObjectListView):
     filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
+
+    def get(self, request):
+        self.queryset = self.queryset.filter(
+            device__in=Device.objects.filter_access(request.user)
+        )
+        return super(InterfaceConnectionsListView, self).get(request)
+
 
 
 #
