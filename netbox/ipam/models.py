@@ -15,7 +15,7 @@ from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.managers import ObjectFilterManager
 from utilities.models import CreatedUpdatedModel
-from utilities.sql import NullsFirstQuerySet
+from utilities.sql import ObjectFilterQuerySet, NullsFirstQuerySet
 from utilities.utils import csv_format
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
@@ -191,7 +191,7 @@ class Role(models.Model):
         return self.vlans.count()
 
 
-class PrefixQuerySet(NullsFirstQuerySet):
+class PrefixQuerySet(NullsFirstQuerySet, ObjectFilterQuerySet):
 
     def annotate_depth(self, limit=None):
         """
@@ -256,7 +256,6 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
 
-    objects = ObjectFilterManager()
 
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
