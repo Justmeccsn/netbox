@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.db.models import Count, Q
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, UserFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -15,7 +15,7 @@ from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
     FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
-    FilterTreeNodeMultipleChoiceField,
+    FilterTreeNodeMultipleChoiceField
 )
 from .formfields import MACAddressFormField
 from .models import (
@@ -168,7 +168,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
-class RackGroupFilterForm(BootstrapMixin, forms.Form):
+class RackGroupFilterForm(BootstrapMixin, UserFieldFilterForm):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('rack_groups')), to_field_name='slug')
 
 
