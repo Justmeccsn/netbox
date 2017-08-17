@@ -360,7 +360,7 @@ class RackReservationForm(BootstrapMixin, forms.ModelForm):
         return unit_choices
 
 
-class RackReservationFilterForm(BootstrapMixin, forms.Form):
+class RackReservationFilterForm(BootstrapMixin, UserFieldFilterForm):
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('racks__reservations')),
@@ -906,6 +906,13 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
     mac_address = forms.CharField(required=False, label='MAC address')
+
+    def __init__(self, *args, **kwargs):
+        super(DeviceFilterForm, self).__init__(*args, **kwargs)
+        query = self.fields['tenant'].queryset
+        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        query = self.fields['rack_id'].queryset
+        self.fields['rack_id'].queryset = query.filter_access(user=self.user)
 
 
 #
