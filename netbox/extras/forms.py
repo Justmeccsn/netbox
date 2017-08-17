@@ -150,7 +150,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
 class CustomFieldFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-
+        self.user = kwargs.pop('user', None)
         self.obj_type = ContentType.objects.get_for_model(self.model)
 
         super(CustomFieldFilterForm, self).__init__(*args, **kwargs)

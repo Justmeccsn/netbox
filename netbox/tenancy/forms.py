@@ -73,6 +73,11 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_option=(0, 'None')
     )
 
+    def __init__(self, *args, **kwargs):
+        super(TenantFilterForm, self).__init__(*args, **kwargs)
+        query = self.fields['group'].queryset
+        self.fields['group'].queryset = query.filter_access(self.user)
+
 
 #
 # Tenancy form extension
