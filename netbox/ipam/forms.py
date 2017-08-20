@@ -5,7 +5,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, UserFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -104,7 +104,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'is_private']
 
 
-class RIRFilterForm(BootstrapMixin, forms.Form):
+class RIRFilterForm(BootstrapMixin, UserFieldFilterForm):
     is_private = forms.NullBooleanField(required=False, label='Private', widget=forms.Select(choices=[
         ('', '---------'),
         ('True', 'Yes'),
