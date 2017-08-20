@@ -629,7 +629,14 @@ class IPAddressView(View):
 
     def get(self, request, pk):
 
-        ipaddress = get_object_or_404(IPAddress.objects.select_related('interface__device'), pk=pk)
+        ipaddress = get_object_or_404(
+            IPAddress.objects.select_related(
+                'interface__device'
+            ).filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -671,7 +678,7 @@ class IPAddressView(View):
         })
 
 
-class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
+class IPAddressCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'ipam.add_ipaddress'
     model = IPAddress
     form_class = forms.IPAddressForm
@@ -683,7 +690,7 @@ class IPAddressEditView(IPAddressCreateView):
     permission_required = 'ipam.change_ipaddress'
 
 
-class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class IPAddressDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     model = IPAddress
     default_return_url = 'ipam:ipaddress_list'
