@@ -1541,13 +1541,13 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     model_form = forms.InterfaceForm
 
 
-class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
+class InterfaceEditView(PermissionRequiredMixin, UserFilterComponentEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
     form_class = forms.InterfaceForm
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class InterfaceDeleteView(PermissionRequiredMixin, UserFilterComponentDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
 
