@@ -781,9 +781,14 @@ class VLANView(View):
 
     def get(self, request, pk):
 
-        vlan = get_object_or_404(VLAN.objects.select_related(
-            'site__region', 'tenant__group', 'role'
-        ), pk=pk)
+        vlan = get_object_or_404(
+            VLAN.objects.select_related(
+                'site__region', 'tenant__group', 'role',
+            ).filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
         prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
         prefix_table = tables.PrefixTable(list(prefixes), orderable=False)
         prefix_table.exclude = ('vlan',)
@@ -794,7 +799,7 @@ class VLANView(View):
         })
 
 
-class VLANCreateView(PermissionRequiredMixin, ObjectEditView):
+class VLANCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'ipam.add_vlan'
     model = VLAN
     form_class = forms.VLANForm
@@ -806,7 +811,7 @@ class VLANEditView(VLANCreateView):
     permission_required = 'ipam.change_vlan'
 
 
-class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class VLANDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'ipam.delete_vlan'
     model = VLAN
     default_return_url = 'ipam:vlan_list'
