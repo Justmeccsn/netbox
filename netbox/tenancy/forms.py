@@ -30,10 +30,20 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
 class TenantForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
+    group = forms.ModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+    )
 
     class Meta:
         model = Tenant
         fields = ['name', 'slug', 'group', 'description', 'comments']
+
+    def __init__(self, *args, **kwargs):
+        super(TenantForm, self).__init__(*args, **kwargs)
+        user = GlobalUserMiddleware.user()
+        query = self.fields['group'].queryset
+        self.fields['group'].queryset = query.filter_access(user)
 
 
 class TenantCSVForm(forms.ModelForm):
