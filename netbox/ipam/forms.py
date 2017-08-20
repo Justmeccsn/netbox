@@ -371,6 +371,13 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
+    def __init__(self, *args, **kwargs):
+        super(PrefixFilterForm, self).__init__(*args, **kwargs)
+        query = self.fields['tenant'].queryset
+        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        query = self.fields['vrf'].queryset
+        self.fields['vrf'].queryset = query.filter_access(user=self.user)
+
 
 #
 # IP addresses
