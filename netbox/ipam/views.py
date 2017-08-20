@@ -447,9 +447,14 @@ class PrefixView(View):
 
     def get(self, request, pk):
 
-        prefix = get_object_or_404(Prefix.objects.select_related(
-            'vrf', 'site__region', 'tenant__group', 'vlan__group', 'role'
-        ), pk=pk)
+        prefix = get_object_or_404(
+            Prefix.objects.select_related(
+                'vrf', 'site__region', 'tenant__group', 'vlan__group', 'role',
+            ).filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
 
         try:
             aggregate = Aggregate.objects.get(prefix__net_contains_or_equals=str(prefix.prefix))
@@ -559,7 +564,7 @@ class PrefixIPAddressesView(View):
         })
 
 
-class PrefixCreateView(PermissionRequiredMixin, ObjectEditView):
+class PrefixCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'ipam.add_prefix'
     model = Prefix
     form_class = forms.PrefixForm
@@ -571,7 +576,7 @@ class PrefixEditView(PrefixCreateView):
     permission_required = 'ipam.change_prefix'
 
 
-class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class PrefixDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
     model = Prefix
     template_name = 'ipam/prefix_delete.html'
