@@ -744,7 +744,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
-class VLANGroupFilterForm(BootstrapMixin, forms.Form):
+class VLANGroupFilterForm(BootstrapMixin, UserFieldFilterForm):
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
         to_field_name='slug',
