@@ -7,6 +7,7 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField, SlugField,
 )
+from utilities.middleware import GlobalUserMiddleware
 from .models import Tenant, TenantGroup
 
 
@@ -107,3 +108,12 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
             kwargs['initial'] = initial
 
         super(TenancyForm, self).__init__(*args, **kwargs)
+        user = GlobalUserMiddleware.user()
+        if not user.is_superuser:
+            query = self.fields['tenant'].queryset
+            self.fields['tenant'].queryset = query.filter_access(user)
+            self.fields['tenant'].required = True
+
+            query = self.fields['tenant_group'].queryset
+            self.fields['tenant_group'].queryset = query.filter_access(user)
+            self.fields['tenant_group'].required = True
