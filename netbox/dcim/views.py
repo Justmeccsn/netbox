@@ -856,9 +856,14 @@ class DeviceView(View):
 
     def get(self, request, pk):
 
-        device = get_object_or_404(Device.objects.select_related(
-            'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
-        ), pk=pk)
+        device = get_object_or_404(
+            Device.objects.select_related(
+                'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
+            ).filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
         console_ports = natsorted(
             ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
         )
@@ -976,7 +981,7 @@ class DeviceConfigView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):
+class DeviceCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'dcim.add_device'
     model = Device
     form_class = forms.DeviceForm
@@ -988,7 +993,7 @@ class DeviceEditView(DeviceCreateView):
     permission_required = 'dcim.change_device'
 
 
-class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class DeviceDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'dcim.delete_device'
     model = Device
     default_return_url = 'dcim:device_list'
