@@ -171,6 +171,11 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug'
     )
 
+    def __init__(self, *args, **kwargs):
+        super(CircuitFilterForm, self).__init__(*args, **kwargs)
+        query = self.fields['tenant'].queryset
+        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+
 
 #
 # Circuit terminations
