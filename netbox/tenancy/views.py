@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import View
@@ -9,6 +10,7 @@ from django.views.generic import View
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device
 from ipam.models import IPAddress, Prefix, VLAN, VRF
+from utilities.middleware import GlobalUserMiddleware
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -37,6 +39,11 @@ class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
 
     def get_return_url(self, request, obj):
         return reverse('tenancy:tenantgroup_list')
+
+    def get_object(self, kwargs):
+        if not GlobalUserMiddleware.user().is_superuser:
+            raise Http404
+        return super(TenantGroupCreateView, self).get_object(kwargs)
 
 
 class TenantGroupEditView(TenantGroupCreateView):
@@ -101,6 +108,11 @@ class TenantCreateView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.TenantForm
     template_name = 'tenancy/tenant_edit.html'
     default_return_url = 'tenancy:tenant_list'
+
+    def get_object(self, kwargs):
+        if not GlobalUserMiddleware.user().is_superuser:
+            raise Http404
+        return super(TenantCreateView, self).get_object(kwargs)
 
 
 class TenantEditView(TenantCreateView):
