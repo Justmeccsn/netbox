@@ -897,6 +897,10 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_option=(0, 'None')
     )
 
+    def __init__(self, *args, **kwargs):
+        super(VLANFilterForm, self).__init__(*args, **kwargs)
+        query = self.fields['tenant'].queryset
+        self.fields['tenant'].queryset = query.filter_access(user=self.user)
 
 #
 # Services
