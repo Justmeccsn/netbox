@@ -13,6 +13,7 @@ from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    UserFilteredObjectDeleteView, UserFilteredObjectEditView,
 )
 from . import filters, forms, tables
 from .models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
@@ -142,7 +143,14 @@ class CircuitView(View):
 
     def get(self, request, pk):
 
-        circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)
+        circuit = get_object_or_404(
+            Circuit.objects.select_related(
+                'provider', 'type', 'tenant__group'
+            ).filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
         termination_a = CircuitTermination.objects.select_related(
             'site__region', 'interface__device'
         ).filter(
@@ -161,7 +169,7 @@ class CircuitView(View):
         })
 
 
-class CircuitCreateView(PermissionRequiredMixin, ObjectEditView):
+class CircuitCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'circuits.add_circuit'
     model = Circuit
     form_class = forms.CircuitForm
@@ -173,7 +181,7 @@ class CircuitEditView(CircuitCreateView):
     permission_required = 'circuits.change_circuit'
 
 
-class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class CircuitDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'circuits.delete_circuit'
     model = Circuit
     default_return_url = 'circuits:circuit_list'
