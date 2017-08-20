@@ -713,6 +713,12 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
     role = forms.MultipleChoiceField(choices=ipaddress_role_choices, required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(IPAddressFilterForm, self).__init__(*args, **kwargs)
+        query = self.fields['tenant'].queryset
+        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        query = self.fields['vrf'].queryset
+        self.fields['vrf'].queryset = query.filter_access(user=self.user)
 
 #
 # VLAN groups
