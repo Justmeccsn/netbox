@@ -162,6 +162,7 @@ MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
+    'utilities.middleware.GlobalUserMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'

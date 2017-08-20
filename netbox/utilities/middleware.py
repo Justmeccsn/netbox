@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import threading
+
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.urls import reverse
@@ -38,4 +40,36 @@ class APIVersionMiddleware(object):
         response = self.get_response(request)
         if request.path_info.startswith(api_path):
             response['API-Version'] = settings.REST_FRAMEWORK_VERSION
+        return response
+
+
+class GlobalUserMiddleware(object):
+    """
+    Retrieve the user from request.
+    """
+    _user = {}
+
+    @classmethod
+    def user(cls):
+        return cls._user[threading.current_thread()]
+
+    def __init__(self, next_layer=None):
+        self.get_response = next_layer
+
+    def process_request(self, request):
+        self._user[threading.current_thread()] = request.user
+
+    def process_response(self, request, response):
+        self._user.pop(threading.current_thread(), None)
+        return response
+
+    def process_exception(self, request, exception):
+        self._user.pop(threading.current_thread(), None)
+        raise exception
+
+    def __call__(self, request):
+        response = self.process_request(request)
+        if response is None:
+            response = self.get_response(request)
+        response = self.process_response(request, response)
         return response
