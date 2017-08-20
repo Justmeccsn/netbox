@@ -14,6 +14,7 @@ from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    UserFilteredObjectEditView, UserFilteredObjectDeleteView,
 )
 from . import filters, forms, tables
 from .constants import IPADDRESS_ROLE_ANYCAST
@@ -107,7 +108,12 @@ class VRFView(View):
 
     def get(self, request, pk):
 
-        vrf = get_object_or_404(VRF.objects.all(), pk=pk)
+        vrf = get_object_or_404(
+            VRF.objects.filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
         prefix_table = tables.PrefixTable(
             list(Prefix.objects.filter(vrf=vrf).select_related('site', 'role')), orderable=False
         )
@@ -119,7 +125,7 @@ class VRFView(View):
         })
 
 
-class VRFCreateView(PermissionRequiredMixin, ObjectEditView):
+class VRFCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'ipam.add_vrf'
     model = VRF
     form_class = forms.VRFForm
@@ -131,7 +137,7 @@ class VRFEditView(VRFCreateView):
     permission_required = 'ipam.change_vrf'
 
 
-class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class VRFDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'ipam.delete_vrf'
     model = VRF
     default_return_url = 'ipam:vrf_list'
