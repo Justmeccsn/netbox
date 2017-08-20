@@ -130,16 +130,25 @@ class ComponentCreateView(View):
         })
 
 
-class ComponentEditView(ObjectEditView):
-
+class ComponentMixin(object):
     def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
 
 
-class ComponentDeleteView(ObjectDeleteView):
+class ComponentEditView(ComponentMixin, ObjectEditView):
+    pass
 
-    def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
+
+class ComponentDeleteView(ComponentMixin, ObjectDeleteView):
+    pass
+
+
+class UserFilterComponentEditView(ComponentMixin, UserFilteredObjectEditView):
+    pass
+
+
+class UserFilterComponentDeleteView(ComponentMixin, UserFilteredObjectDeleteView):
+    pass
 
 
 class BulkDisconnectView(View):
@@ -1134,15 +1143,21 @@ def consoleport_disconnect(request, pk):
     })
 
 
-class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
+class ConsolePortEditView(PermissionRequiredMixin, UserFilterComponentEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
     form_class = forms.ConsolePortForm
 
+    def filter_model(self):
+        return self.model.objects.filter(device__in=Device.objects.filter_access(self.user))
 
-class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+
+class ConsolePortDeleteView(PermissionRequiredMixin, UserFilterComponentDeleteView):
     permission_required = 'dcim.delete_consoleport'
     model = ConsolePort
+
+    def filter_model(self):
+        return self.model.objects.filter(device__in=Device.objects.filter_access(self.user))
 
 
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
