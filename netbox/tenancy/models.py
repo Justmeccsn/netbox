@@ -29,7 +29,7 @@ class TenantGroupManager(models.Manager):
         return TenantGroupQuerySet(self.model, using=self._db)
 
     def filter_access(self, user):
-        self.get_queryset().filter_access(user)
+        return self.get_queryset().filter_access(user)
 
 
 @python_2_unicode_compatible
@@ -72,7 +72,7 @@ class TenantManager(models.Manager):
         return TenantQuerySet(self.model, using=self._db)
 
     def filter_access(self, user):
-        self.get_queryset().filter_access(user)
+        return self.get_queryset().filter_access(user)
 
 
 @python_2_unicode_compatible
