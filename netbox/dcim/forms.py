@@ -1755,17 +1755,17 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 # Connections
 #
 
-class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
+class ConsoleConnectionFilterForm(BootstrapMixin, UserFieldFilterForm):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
 
-class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
+class PowerConnectionFilterForm(BootstrapMixin, UserFieldFilterForm):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
 
-class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
+class InterfaceConnectionFilterForm(BootstrapMixin, UserFieldFilterForm):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
