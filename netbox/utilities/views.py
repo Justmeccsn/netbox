@@ -290,6 +290,35 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         })
 
 
+class UserFilterObjectView(object):
+    def filter_model(self):
+        return self.model.objects.filter_access(self.user)
+
+    def get_object(self, kwargs):
+        # Look up object by slug or PK. Return None if neither was provided.
+        if 'slug' in kwargs:
+            return get_object_or_404(self.filter_model(), slug=kwargs['slug'])
+        elif 'pk' in kwargs:
+            return get_object_or_404(self.filter_model(), pk=kwargs['pk'])
+        return self.model()
+
+    def get(self, request, *args, **kwargs):
+        self.user = self.request.user
+        return super(UserFilterObjectView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.user = self.request.user
+        return super(UserFilterObjectView, self).post(request, *args, **kwargs)
+
+
+class UserFilteredObjectEditView(UserFilterObjectView, ObjectEditView):
+    pass
+
+
+class UserFilteredObjectDeleteView(UserFilterObjectView, ObjectDeleteView):
+    pass
+
+
 class BulkCreateView(View):
     """
     Create new objects in bulk.

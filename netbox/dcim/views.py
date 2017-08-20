@@ -24,6 +24,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    UserFilteredObjectDeleteView, UserFilteredObjectEditView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -413,7 +414,14 @@ class RackView(View):
 
     def get(self, request, pk):
 
-        rack = get_object_or_404(Rack.objects.select_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
+        rack = get_object_or_404(
+            Rack.objects.select_related(
+                'site__region', 'tenant__group', 'group', 'role',
+            ).filter_access(
+                request.user
+            ),
+            pk=pk,
+        )
 
         nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
             .select_related('device_type__manufacturer')
@@ -433,7 +441,7 @@ class RackView(View):
         })
 
 
-class RackCreateView(PermissionRequiredMixin, ObjectEditView):
+class RackCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
     permission_required = 'dcim.add_rack'
     model = Rack
     form_class = forms.RackForm
@@ -445,7 +453,7 @@ class RackEditView(RackCreateView):
     permission_required = 'dcim.change_rack'
 
 
-class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class RackDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
     permission_required = 'dcim.delete_rack'
     model = Rack
     default_return_url = 'dcim:rack_list'
