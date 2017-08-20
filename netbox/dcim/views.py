@@ -1885,7 +1885,8 @@ class InterfaceConnectionsListView(ObjectListView):
 
     def get(self, request):
         self.queryset = self.queryset.filter(
-            device__in=Device.objects.filter_access(request.user)
+            Q(interface_a__device__in=Device.objects.filter_access(request.user)) |
+            Q(interface_b__device__in=Device.objects.filter_access(request.user))
         )
         return super(InterfaceConnectionsListView, self).get(request)
 
