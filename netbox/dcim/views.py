@@ -1382,13 +1382,13 @@ def powerport_disconnect(request, pk):
     })
 
 
-class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
+class PowerPortEditView(PermissionRequiredMixin, UserFilterComponentEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
     form_class = forms.PowerPortForm
 
 
-class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class PowerPortDeleteView(PermissionRequiredMixin, UserFilterComponentDeleteView):
     permission_required = 'dcim.delete_powerport'
     model = PowerPort
 
