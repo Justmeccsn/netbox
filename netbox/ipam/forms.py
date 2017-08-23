@@ -13,6 +13,7 @@ from utilities.forms import (
     ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, ReturnURLForm, SlugField,
     add_blank_choice,
 )
+from utilities.middleware import GlobalUserMiddleware
 from .models import (
     Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
     Service, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
@@ -225,7 +226,11 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         super(PrefixForm, self).__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
+        query = self.fields['vrf'].queryset
+        self.fields['vrf'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
+        query = self.fields['vlan'].queryset
+        self.fields['vlan'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
 class PrefixCSVForm(forms.ModelForm):
     vrf = forms.ModelChoiceField(
