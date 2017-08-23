@@ -17,6 +17,7 @@ from utilities.forms import (
     FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField
 )
+from utilities.middleware import GlobalUserMiddleware
 from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, ConsolePort,
@@ -647,6 +648,9 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             kwargs['initial'] = initial
 
         super(DeviceForm, self).__init__(*args, **kwargs)
+
+        query = self.fields['rack'].queryset
+        self.fields['rack'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
         if self.instance.pk:
 
