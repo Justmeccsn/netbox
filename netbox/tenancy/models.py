@@ -24,14 +24,6 @@ class TenantGroupQuerySet(models.query.QuerySet):
         return self
 
 
-class TenantGroupManager(models.Manager):
-    def get_queryset(self):
-        return TenantGroupQuerySet(self.model, using=self._db)
-
-    def filter_access(self, user):
-        return self.get_queryset().filter_access(user)
-
-
 @python_2_unicode_compatible
 class TenantGroup(models.Model):
     """
@@ -42,7 +34,7 @@ class TenantGroup(models.Model):
     access_group = models.ManyToManyField(blank=True, related_name='tenant_group', to=Group, verbose_name='Access Group')
     access_users = models.ManyToManyField(blank=True, related_name='tenant_group', to=User, verbose_name='Access Users')
 
-    objects = TenantGroupManager()
+    objects = TenantGroupQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -67,14 +59,6 @@ class TenantQuerySet(models.query.QuerySet):
         return self
 
 
-class TenantManager(models.Manager):
-    def get_queryset(self):
-        return TenantQuerySet(self.model, using=self._db)
-
-    def filter_access(self, user):
-        return self.get_queryset().filter_access(user)
-
-
 @python_2_unicode_compatible
 class Tenant(CreatedUpdatedModel, CustomFieldModel):
     """
@@ -90,7 +74,7 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'slug', 'group', 'description']
 
-    objects = TenantManager()
+    objects = TenantQuerySet.as_manager()
 
     class Meta:
         ordering = ['group', 'name']
