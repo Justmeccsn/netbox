@@ -135,7 +135,7 @@ class ObjectListView(View):
         context = {
             'table': table,
             'permissions': permissions,
-            'filter_form': self.filter_form(request.GET, label_suffix='', user=request.user) if self.filter_form else None,
+            'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
             'export_templates': ExportTemplate.objects.filter(content_type=object_ct),
         }
         context.update(self.extra_context())

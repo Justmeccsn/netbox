@@ -87,7 +87,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(TenantFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['group'].queryset
-        self.fields['group'].queryset = query.filter_access(self.user)
+        self.fields['group'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
 
 #

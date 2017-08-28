@@ -7,7 +7,6 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from extras.forms import UserFieldFilterForm
 from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
 from .models import Secret, SecretRole, UserKey
 
@@ -109,7 +108,7 @@ class SecretBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ['name']
 
 
-class SecretFilterForm(BootstrapMixin, UserFieldFilterForm):
+class SecretFilterForm(BootstrapMixin, forms.ModelForm):
     q = forms.CharField(required=False, label='Search')
     role = FilterChoiceField(
         queryset=SecretRole.objects.annotate(filter_count=Count('secrets')),

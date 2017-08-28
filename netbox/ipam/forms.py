@@ -5,7 +5,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, UserFieldFilterForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -90,7 +90,7 @@ class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(VRFFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 
 #
@@ -105,7 +105,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'is_private']
 
 
-class RIRFilterForm(BootstrapMixin, UserFieldFilterForm):
+class RIRFilterForm(BootstrapMixin, forms.ModelForm):
     is_private = forms.NullBooleanField(required=False, label='Private', widget=forms.Select(choices=[
         ('', '---------'),
         ('True', 'Yes'),
@@ -384,9 +384,9 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(PrefixFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
         query = self.fields['vrf'].queryset
-        self.fields['vrf'].queryset = query.filter_access(user=self.user)
+        self.fields['vrf'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 
 #
@@ -751,9 +751,9 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(IPAddressFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
         query = self.fields['vrf'].queryset
-        self.fields['vrf'].queryset = query.filter_access(user=self.user)
+        self.fields['vrf'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 #
 # VLAN groups
@@ -767,7 +767,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
-class VLANGroupFilterForm(BootstrapMixin, UserFieldFilterForm):
+class VLANGroupFilterForm(BootstrapMixin, forms.ModelForm):
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
         to_field_name='slug',
@@ -923,7 +923,7 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(VLANFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 #
 # Services

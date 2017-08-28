@@ -7,6 +7,7 @@ from dcim.models import Site, Device, Interface, Rack
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
+from utilities.middleware import GlobalUserMiddleware
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
     SmallTextarea, SlugField,
@@ -174,7 +175,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(CircuitFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 
 #

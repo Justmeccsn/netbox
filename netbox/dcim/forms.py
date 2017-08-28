@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.db.models import Count, Q
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, UserFieldFilterForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -159,7 +159,7 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(SiteFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 
 #
@@ -174,7 +174,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
-class RackGroupFilterForm(BootstrapMixin, UserFieldFilterForm):
+class RackGroupFilterForm(BootstrapMixin, forms.ModelForm):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('rack_groups')), to_field_name='slug')
 
 
@@ -335,7 +335,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(RackFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 
 #
@@ -366,7 +366,7 @@ class RackReservationForm(BootstrapMixin, forms.ModelForm):
         return unit_choices
 
 
-class RackReservationFilterForm(BootstrapMixin, UserFieldFilterForm):
+class RackReservationFilterForm(BootstrapMixin, forms.ModelForm):
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('racks__reservations')),
@@ -919,9 +919,9 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     def __init__(self, *args, **kwargs):
         super(DeviceFilterForm, self).__init__(*args, **kwargs)
         query = self.fields['tenant'].queryset
-        self.fields['tenant'].queryset = query.filter_access(user=self.user)
+        self.fields['tenant'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
         query = self.fields['rack_id'].queryset
-        self.fields['rack_id'].queryset = query.filter_access(user=self.user)
+        self.fields['rack_id'].queryset = query.filter_access(user=GlobalUserMiddleware.user())
 
 
 #
@@ -1764,17 +1764,17 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 # Connections
 #
 
-class ConsoleConnectionFilterForm(BootstrapMixin, UserFieldFilterForm):
+class ConsoleConnectionFilterForm(BootstrapMixin, forms.ModelForm):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
 
-class PowerConnectionFilterForm(BootstrapMixin, UserFieldFilterForm):
+class PowerConnectionFilterForm(BootstrapMixin, forms.ModelForm):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
 
-class InterfaceConnectionFilterForm(BootstrapMixin, UserFieldFilterForm):
+class InterfaceConnectionFilterForm(BootstrapMixin, forms.ModelForm):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
