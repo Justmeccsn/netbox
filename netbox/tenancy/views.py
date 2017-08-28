@@ -40,10 +40,10 @@ class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     def get_return_url(self, request, obj):
         return reverse('tenancy:tenantgroup_list')
 
-    def get_object(self):
+    def get_object(self, kwargs):
         if not GlobalUserMiddleware.user().is_superuser:
             raise Http404
-        return super(TenantGroupCreateView, self).get_object()
+        return super(TenantGroupCreateView, self).get_object(kwargs)
 
 
 class TenantGroupEditView(TenantGroupCreateView):
