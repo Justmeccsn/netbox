@@ -524,6 +524,22 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
 
         self.fields['vrf'].empty_label = 'Global'
 
+        user = GlobalUserMiddleware.user()
+        query = self.fields['interface_rack'].queryset
+        self.fields['interface_rack'].queryset = query.filter_access(user)
+        query = self.fields['interface_device'].queryset
+        self.fields['interface_device'].queryset = query.filter_access(user)
+        query = self.fields['interface'].queryset
+        self.fields['interface'].queryset = query.filter(
+            device__in=Device.objects.filter_access(user),
+        )
+        query = self.fields['nat_rack'].queryset
+        self.fields['nat_rack'].queryset = query.filter_access(user)
+        query = self.fields['nat_device'].queryset
+        self.fields['nat_device'].queryset = query.filter_access(user)
+        query = self.fields['nat_inside'].queryset
+        self.fields['nat_inside'].queryset = query.filter_access(user)
+
         # Initialize primary_for_device if IP address is already assigned
         if self.instance.interface is not None:
             device = self.instance.interface.device
