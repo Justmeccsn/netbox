@@ -572,6 +572,8 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     def __init__(self, *args, **kwargs):
         super(IPAddressBulkAddForm, self).__init__(*args, **kwargs)
         self.fields['vrf'].empty_label = 'Global'
+        query = self.fields['vrf'].queryset
+        self.fields['vrf'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
 
 class IPAddressCSVForm(forms.ModelForm):
