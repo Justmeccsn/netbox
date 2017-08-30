@@ -35,10 +35,15 @@ class NullsFirstQuerySet(models.QuerySet):
 
 
 class ObjectFilterQuerySet(models.QuerySet):
+    def build_args(self, user):
+        return models.Q(tenant__users__in=user)
+
     def filter_access(self, user):
         if not user.is_superuser:
             try:
-                return self.filter(tenant__users__in=user)
+                return self.filter(
+                    self.build_args(user)
+                )
             except TypeError:
                 return self.none()
         return self

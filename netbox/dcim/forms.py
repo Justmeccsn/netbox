@@ -177,12 +177,12 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
 # Rack roles
 #
 
-class RackRoleForm(BootstrapMixin, forms.ModelForm):
+class RackRoleForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
         model = RackRole
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug', 'color', 'tenant_group', 'tenant']
 
 
 #

@@ -15,6 +15,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 
 from utilities.utils import foreground_color
+from utilities.sql import ObjectFilterQuerySet
 from .constants import *
 
 
@@ -241,6 +242,15 @@ class ExportTemplate(models.Model):
 # Topology maps
 #
 
+class TopologyQuerySet(ObjectFilterQuerySet):
+
+    def build_args(self, user):
+        from netbox.dcim.models import Site
+        return models.Q(
+            site__in=Site.objects.filter_access(user)
+        )
+
+
 @python_2_unicode_compatible
 class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -252,6 +262,8 @@ class TopologyMap(models.Model):
                   "Devices will be rendered in the order they are defined."
     )
     description = models.CharField(max_length=100, blank=True)
+
+    objects = TopologyQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

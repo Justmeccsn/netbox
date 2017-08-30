@@ -23,6 +23,7 @@ from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager, FilterNaturalOrderByManager, ObjectFilterManager
 from utilities.models import CreatedUpdatedModel
+from utilities.sql import ObjectFilterQuerySet
 from utilities.utils import csv_format
 from .constants import *
 from .fields import ASNField, MACAddressField
@@ -57,10 +58,11 @@ class Region(MPTTModel):
 # Sites
 #
 
-class SiteManager(NaturalOrderByManager):
+class SiteManager(FilterNaturalOrderByManager):
 
     def get_queryset(self):
-        return self.natural_order_by('name')
+        queryset = super(SiteManager, self).get_queryset()
+        return queryset.natural_order_by('name')
 
 
 @python_2_unicode_compatible
@@ -137,6 +139,14 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 # Racks
 #
 
+class RackGroupQuerySet(ObjectFilterQuerySet):
+
+    def build_args(self, user):
+        return models.Q(
+            site__in=Site.objects.filter_access(user)
+        )
+
+
 @python_2_unicode_compatible
 class RackGroup(models.Model):
     """
@@ -147,6 +157,8 @@ class RackGroup(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField()
     site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
+
+    objects = RackGroupQuerySet.as_manager()
 
     class Meta:
         ordering = ['site', 'name']
@@ -170,6 +182,9 @@ class RackRole(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     color = ColorField()
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

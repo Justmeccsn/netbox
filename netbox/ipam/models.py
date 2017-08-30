@@ -38,7 +38,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
-    objects = ObjectFilterManager()
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -102,6 +102,9 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     date_added = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='aggregates', on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
@@ -175,6 +178,9 @@ class Role(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     weight = models.PositiveSmallIntegerField(default=1000)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='roles', on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['weight', 'name']
@@ -492,6 +498,16 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+class VLANGroupQuerySet(ObjectFilterQuerySet):
+
+    def build_args(self, user):
+        from netbox.dcim.models import Site
+        return models.Q(
+            site__in=Site.objects.filter_access(user)
+        )
+
+
+
 @python_2_unicode_compatible
 class VLANGroup(models.Model):
     """
@@ -500,6 +516,8 @@ class VLANGroup(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField()
     site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=True, null=True)
+
+    objects = VLANGroupQuerySet.as_manager()
 
     class Meta:
         ordering = ['site', 'name']
@@ -540,7 +558,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
-    objects = ObjectFilterManager()
+    objects = ObjectFilterQuerySet.as_manager()
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
@@ -589,6 +607,15 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+class ServiceQuerySet(ObjectFilterQuerySet):
+
+    def build_args(self, user):
+        from netbox.dcim.models import Device
+        return models.Q(
+            device__in=Device.objects.filter_access(user)
+        )
+
+
 @python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
     """
@@ -603,6 +630,8 @@ class Service(CreatedUpdatedModel):
     ipaddresses = models.ManyToManyField('ipam.IPAddress', related_name='services', blank=True,
                                          verbose_name='IP addresses')
     description = models.CharField(max_length=100, blank=True)
+
+    objects = ServiceQuerySet.as_manager()
 
     class Meta:
         ordering = ['device', 'protocol', 'port']

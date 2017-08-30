@@ -9,8 +9,10 @@ from django.utils.encoding import python_2_unicode_compatible
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
+from utilities.sql import ObjectFilterQuerySet
 
 
+<<<<<<< HEAD
 class TenantGroupQuerySet(models.query.QuerySet):
     def filter_access(self, user):
         if not user.is_superuser:
@@ -19,6 +21,14 @@ class TenantGroupQuerySet(models.query.QuerySet):
             except TypeError:
                 return self.none()
         return self
+=======
+class TenantGroupQuerySet(ObjectFilterQuerySet):
+    def build_args(self, user):
+        return (
+            models.Q(access_group__user=user) |
+            models.Q(access_users=user)
+        )
+>>>>>>> 8d1f8b6... Filter by user models in ipam, utils, dcim
 
 
 @python_2_unicode_compatible
@@ -42,13 +52,8 @@ class TenantGroup(models.Model):
 
 
 class TenantQuerySet(models.query.QuerySet):
-    def filter_access(self, user):
-        if not user.is_superuser:
-            try:
-                return self.filter(users__in=[user])
-            except TypeError:
-                return self.none()
-        return self
+    def build_args(self, user):
+        return models.Q(users__in=[user])
 
 
 @python_2_unicode_compatible
