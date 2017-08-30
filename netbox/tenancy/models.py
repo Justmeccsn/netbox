@@ -9,19 +9,15 @@ from django.utils.encoding import python_2_unicode_compatible
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
+from utilities.sql import ObjectFilterQuerySet
 
 
-class TenantGroupQuerySet(models.query.QuerySet):
-    def filter_access(self, user):
-        if not user.is_superuser:
-            try:
-                return self.filter(
-                    models.Q(access_group__user=user) |
-                    models.Q(access_users=user)
-                )
-            except TypeError:
-                return self.none()
-        return self
+class TenantGroupQuerySet(ObjectFilterQuerySet):
+    def build_args(self, user):
+        return (
+            models.Q(access_group__user=user) |
+            models.Q(access_users=user)
+        )
 
 
 @python_2_unicode_compatible
@@ -46,17 +42,12 @@ class TenantGroup(models.Model):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
 
 
-class TenantQuerySet(models.query.QuerySet):
-    def filter_access(self, user):
-        if not user.is_superuser:
-            try:
-                return self.filter(
-                    models.Q(group__access_group__user=user) |
-                    models.Q(group__access_users=user)
-                )
-            except TypeError:
-                return self.none()
-        return self
+class TenantQuerySet(ObjectFilterQuerySet):
+    def build_args(self, user):
+        return (
+            models.Q(group__access_group__user=user) |
+            models.Q(group__access_users=user)
+        )
 
 
 @python_2_unicode_compatible

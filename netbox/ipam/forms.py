@@ -117,11 +117,11 @@ class RIRFilterForm(BootstrapMixin, forms.ModelForm):
 # Aggregates
 #
 
-class AggregateForm(BootstrapMixin, CustomFieldForm):
+class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
     class Meta:
         model = Aggregate
-        fields = ['prefix', 'rir', 'date_added', 'description']
+        fields = ['prefix', 'rir', 'date_added', 'description', 'tenant_group', 'tenant']
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -169,12 +169,12 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Roles
 #
 
-class RoleForm(BootstrapMixin, forms.ModelForm):
+class RoleForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
         model = Role
-        fields = ['name', 'slug']
+        fields = ['name', 'slug', 'tenant_group', 'tenant']
 
 
 #
