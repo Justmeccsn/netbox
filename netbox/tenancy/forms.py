@@ -32,7 +32,7 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments']
+        fields = ['name', 'slug', 'group', 'description', 'comments', 'users']
 
 
 class TenantCSVForm(forms.ModelForm):
@@ -49,7 +49,7 @@ class TenantCSVForm(forms.ModelForm):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments']
+        fields = ['name', 'slug', 'group', 'description', 'comments', 'users']
         help_texts = {
             'name': 'Tenant name',
             'comments': 'Free-form comments'

@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
@@ -40,6 +41,7 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True, help_text="Long-form name (optional)")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    users = models.ManyToManyField(blank=True, related_name='tenants', to=User, verbose_name='Users')
 
     csv_headers = ['name', 'slug', 'group', 'description']
 
