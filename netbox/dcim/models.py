@@ -182,7 +182,7 @@ class RackRole(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     color = ColorField()
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='rack_roles', on_delete=models.PROTECT)
 
     objects = ObjectFilterQuerySet.as_manager()
 
