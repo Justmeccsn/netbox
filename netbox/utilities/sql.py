@@ -49,6 +49,13 @@ class ObjectFilterQuerySet(models.QuerySet):
         return self
 
 
+class FilterByDeviceQuerySet(ObjectFilterQuerySet):
+    def build_args(self, user):
+        from dcim.models import Device
+
+        return models.Q(device__in=Device.objects.filter_access(user))
+
+
 class NaturalOrderByQuerySet(models.QuerySet):
 
     def natural_order_by(self, *fields):

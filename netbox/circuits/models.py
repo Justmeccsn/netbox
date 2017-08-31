@@ -29,6 +29,9 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     admin_contact = models.TextField(blank=True, verbose_name='Admin contact')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='providers', on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url']
 
@@ -127,6 +130,11 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         return self._get_termination('Z')
 
 
+class CircuitTerminationQuerySet(ObjectFilterQuerySet):
+    def build_args(self, user):
+        return models.Q(circuit__in=Circuit.objects.filter_access(user))
+
+
 @python_2_unicode_compatible
 class CircuitTermination(models.Model):
     circuit = models.ForeignKey('Circuit', related_name='terminations', on_delete=models.CASCADE)
@@ -142,6 +150,8 @@ class CircuitTermination(models.Model):
     )
     xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
     pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
+
+    objects = CircuitTerminationQuerySet.as_manager()
 
     class Meta:
         ordering = ['circuit', 'term_side']

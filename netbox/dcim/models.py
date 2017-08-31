@@ -23,7 +23,7 @@ from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager, FilterNaturalOrderByManager, ObjectFilterManager
 from utilities.models import CreatedUpdatedModel
-from utilities.sql import ObjectFilterQuerySet
+from utilities.sql import ObjectFilterQuerySet, FilterByDeviceQuerySet
 from utilities.utils import csv_format
 from .constants import *
 from .fields import ASNField, MACAddressField
@@ -394,6 +394,12 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         return int(float(self.u_height - u_available) / self.u_height * 100)
 
 
+class RackReservationQuerySet(ObjectFilterQuerySet):
+
+    def build_args(self, user):
+        return models.Q(user__tenants__in=user.tenants)
+
+
 @python_2_unicode_compatible
 class RackReservation(models.Model):
     """
@@ -404,6 +410,8 @@ class RackReservation(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
     description = models.CharField(max_length=100)
+
+    objects = RackReservationQuerySet.as_manager()
 
     class Meta:
         ordering = ['created']
@@ -506,6 +514,9 @@ class DeviceType(models.Model, CustomFieldModel):
                                                        "\"None\" if this device type is neither a parent nor a child.")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='device_types', on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -584,6 +595,11 @@ class DeviceType(models.Model, CustomFieldModel):
         return bool(self.subdevice_role is False)
 
 
+class FilterByDeviceTypeQuerySet(ObjectFilterQuerySet):
+    def build_args(self, user):
+        return models.Q(device_type__in=DeviceType.objects.filter_access(user))
+
+
 @python_2_unicode_compatible
 class ConsolePortTemplate(models.Model):
     """
@@ -591,6 +607,8 @@ class ConsolePortTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='console_port_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+
+    objects = FilterByDeviceTypeQuerySet.as_manager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -608,6 +626,8 @@ class ConsoleServerPortTemplate(models.Model):
     device_type = models.ForeignKey('DeviceType', related_name='cs_port_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
 
+    objects = FilterByDeviceTypeQuerySet.as_manager()
+
     class Meta:
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
@@ -623,6 +643,8 @@ class PowerPortTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='power_port_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+
+    objects = FilterByDeviceTypeQuerySet.as_manager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -640,6 +662,8 @@ class PowerOutletTemplate(models.Model):
     device_type = models.ForeignKey('DeviceType', related_name='power_outlet_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
 
+    objects = FilterByDeviceTypeQuerySet.as_manager()
+
     class Meta:
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
@@ -648,7 +672,7 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
 
-class InterfaceQuerySet(models.QuerySet):
+class InterfaceTemplateQuerySet(FilterByDeviceTypeQuerySet):
 
     def order_naturally(self, method=IFACE_ORDERING_POSITION):
         """
@@ -705,7 +729,7 @@ class InterfaceTemplate(models.Model):
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
-    objects = InterfaceQuerySet.as_manager()
+    objects = InterfaceTemplateQuerySet.as_manager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -722,6 +746,8 @@ class DeviceBayTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='device_bay_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+
+    objects = FilterByDeviceTypeQuerySet.as_manager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -744,6 +770,9 @@ class DeviceRole(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     color = ColorField()
+    tenant = models.ForeignKey(Tenant, related_name='device_roles', blank=True, null=True, on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -768,6 +797,9 @@ class Platform(models.Model):
                                      help_text="The name of the NAPALM driver to use when interacting with devices.")
     rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True,
                                   verbose_name='Legacy RPC client')
+    tenant = models.ForeignKey(Tenant, related_name='platforms', blank=True, null=True, on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
@@ -1018,7 +1050,6 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             return None
         return RPC_CLIENTS.get(self.platform.rpc_client)
 
-
 #
 # Console ports
 #
@@ -1033,6 +1064,8 @@ class ConsolePort(models.Model):
     cs_port = models.OneToOneField('ConsoleServerPort', related_name='connected_console', on_delete=models.SET_NULL,
                                    verbose_name='Console server port', blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
+
+    objects = FilterByDeviceQuerySet.as_manager()
 
     csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
 
@@ -1058,7 +1091,8 @@ class ConsolePort(models.Model):
 # Console server ports
 #
 
-class ConsoleServerPortManager(models.Manager):
+
+class ConsoleServerPortManager(ObjectFilterManager):
 
     def get_queryset(self):
         """
@@ -1068,7 +1102,7 @@ class ConsoleServerPortManager(models.Manager):
         Instead of:
             Port 1, Port 10, Port 11 ... Port 19, Port 2, Port 20 ...
         """
-        return super(ConsoleServerPortManager, self).get_queryset().extra(select={
+        return FilterByDeviceQuerySet(self.model, using=self._db).extra(select={
             'name_as_integer': "CAST(substring(dcim_consoleserverport.name FROM '[0-9]+$') AS INTEGER)",
         }).order_by('device', 'name_as_integer')
 
@@ -1105,6 +1139,8 @@ class PowerPort(models.Model):
                                         blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
 
+    objects = FilterByDeviceQuerySet.as_manager()
+
     csv_headers = ['pdu', 'power_outlet', 'device', 'power_port', 'connection_status']
 
     class Meta:
@@ -1129,10 +1165,10 @@ class PowerPort(models.Model):
 # Power outlets
 #
 
-class PowerOutletManager(models.Manager):
+class PowerOutletManager(ObjectFilterManager):
 
     def get_queryset(self):
-        return super(PowerOutletManager, self).get_queryset().extra(select={
+        return FilterByDeviceQuerySet(self.model, using=self._db).extra(select={
             'name_padded': "CONCAT(SUBSTRING(dcim_poweroutlet.name FROM '^[^0-9]+'), "
                            "LPAD(SUBSTRING(dcim_poweroutlet.name FROM '[0-9\/]+$'), 8, '0'))",
         }).order_by('device', 'name_padded')
@@ -1158,6 +1194,9 @@ class PowerOutlet(models.Model):
 #
 # Interfaces
 #
+class InterfaceQuerySet(FilterByDeviceQuerySet, InterfaceTemplateQuerySet):
+    pass
+
 
 @python_2_unicode_compatible
 class Interface(models.Model):
@@ -1273,6 +1312,15 @@ class Interface(models.Model):
         return None
 
 
+class InterfaceConnectionQuerySet(FilterByDeviceQuerySet):
+    def build_args(self, user):
+        interfaces = Interface.objects.filter_access(user)
+        return (
+            models.Q(interface_a__in=interfaces) |
+            models.Q(interface_b__in=interfaces)
+        )
+
+
 class InterfaceConnection(models.Model):
     """
     An InterfaceConnection represents a symmetrical, one-to-one connection between two Interfaces. There is no
@@ -1282,6 +1330,8 @@ class InterfaceConnection(models.Model):
     interface_b = models.OneToOneField('Interface', related_name='connected_as_b', on_delete=models.CASCADE)
     connection_status = models.BooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED,
                                             verbose_name='Status')
+
+    objects = InterfaceConnectionQuerySet.as_manager()
 
     csv_headers = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
 
@@ -1318,6 +1368,8 @@ class DeviceBay(models.Model):
     name = models.CharField(max_length=50, verbose_name='Name')
     installed_device = models.OneToOneField('Device', related_name='parent_bay', on_delete=models.SET_NULL, blank=True,
                                             null=True)
+
+    objects = FilterByDeviceQuerySet.as_manager()
 
     class Meta:
         ordering = ['device', 'name']
@@ -1363,6 +1415,8 @@ class InventoryItem(models.Model):
     )
     discovered = models.BooleanField(default=False, verbose_name='Discovered')
     description = models.CharField(max_length=100, blank=True)
+
+    objects = FilterByDeviceQuerySet.as_manager()
 
     class Meta:
         ordering = ['device__id', 'parent__id', 'name']
