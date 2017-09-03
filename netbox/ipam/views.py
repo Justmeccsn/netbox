@@ -308,7 +308,12 @@ class AggregateView(View):
 
     def get(self, request, pk):
 
-        aggregate = get_object_or_404(Aggregate, pk=pk)
+        aggregate = get_object_or_404(
+            Aggregate.objects.filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
 
         # Find all child prefixes contained by this aggregate
         child_prefixes = Prefix.objects.filter(

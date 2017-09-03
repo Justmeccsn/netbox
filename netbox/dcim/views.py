@@ -236,7 +236,14 @@ class SiteView(View):
 
     def get(self, request, slug):
 
-        site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
+        site = get_object_or_404(
+            Site.objects.select_related(
+                'region', 'tenant__group'
+            ).filter_access(
+                request.user,
+            ),
+            slug=slug,
+        )
         stats = {
             'rack_count': Rack.objects.filter(site=site).count(),
             'device_count': Device.objects.filter(site=site).count(),
@@ -583,7 +590,12 @@ class DeviceTypeView(View):
 
     def get(self, request, pk):
 
-        devicetype = get_object_or_404(DeviceType, pk=pk)
+        devicetype = get_object_or_404(
+            DeviceType.objects.filter_access(
+                request.user,
+            ),
+            pk=pk,
+        )
 
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(

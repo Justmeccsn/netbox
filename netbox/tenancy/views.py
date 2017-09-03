@@ -70,7 +70,12 @@ class TenantView(View):
 
     def get(self, request, slug):
 
-        tenant = get_object_or_404(Tenant, slug=slug)
+        tenant = get_object_or_404(
+            Tenant.objects.filter_access(
+                request.user,
+            ),
+            slug=slug,
+        )
         stats = {
             'site_count': Site.objects.filter(tenant=tenant).count(),
             'rack_count': Rack.objects.filter(tenant=tenant).count(),

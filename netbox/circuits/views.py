@@ -35,7 +35,12 @@ class ProviderView(View):
 
     def get(self, request, slug):
 
-        provider = get_object_or_404(Provider, slug=slug)
+        provider = get_object_or_404(
+            Provider.filter_access(
+                request.user,
+            ),
+            slug=slug,
+        )
         circuits = Circuit.objects.filter(provider=provider).select_related(
             'type', 'tenant'
         ).prefetch_related(
