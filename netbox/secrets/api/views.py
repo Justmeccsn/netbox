@@ -5,10 +5,11 @@ from Crypto.PublicKey import RSA
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ViewSet
 
 from django.http import HttpResponseBadRequest
 
+from extras.api.views import FilterAccessModelViewSet
 from secrets import filters
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
@@ -26,7 +27,7 @@ ERR_PRIVKEY_INVALID = "Invalid private key."
 # Secret Roles
 #
 
-class SecretRoleViewSet(ModelViewSet):
+class SecretRoleViewSet(FilterAccessModelViewSet):
     queryset = SecretRole.objects.all()
     serializer_class = serializers.SecretRoleSerializer
     permission_classes = [IsAuthenticated]
@@ -37,7 +38,7 @@ class SecretRoleViewSet(ModelViewSet):
 # Secrets
 #
 
-class SecretViewSet(WritableSerializerMixin, ModelViewSet):
+class SecretViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = Secret.objects.select_related(
         'device__primary_ip4', 'device__primary_ip6', 'role',
     ).prefetch_related(

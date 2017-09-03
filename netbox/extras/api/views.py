@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from rest_framework.decorators import detail_route
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
@@ -10,10 +10,29 @@ from django.shortcuts import get_object_or_404
 from extras import filters
 from extras.models import ExportTemplate, Graph, ImageAttachment, TopologyMap, UserAction
 from utilities.api import WritableSerializerMixin
+from utilities.middleware import GlobalUserMiddleware
 from . import serializers
 
 
-class CustomFieldModelViewSet(ModelViewSet):
+class FilterAccess(object):
+    def get_queryset(self):
+        try:
+            return super(FilterAccess, self).get_queryset().filter_access(
+                GlobalUserMiddleware.user()
+            )
+        except AttributeError:
+            return super(FilterAccess, self).get_queryset()
+
+
+class FilterAccessGenericViewSet(FilterAccess, GenericViewSet):
+    pass
+
+
+class FilterAccessModelViewSet(FilterAccess, ModelViewSet):
+    pass
+
+
+class CustomFieldModelViewSet(FilterAccessModelViewSet):
     """
     Include the applicable set of CustomFields in the ModelViewSet context.
     """
@@ -43,20 +62,20 @@ class CustomFieldModelViewSet(ModelViewSet):
         return super(CustomFieldModelViewSet, self).get_queryset().prefetch_related('custom_field_values__field')
 
 
-class GraphViewSet(WritableSerializerMixin, ModelViewSet):
+class GraphViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
     write_serializer_class = serializers.WritableGraphSerializer
     filter_class = filters.GraphFilter
 
 
-class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class ExportTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filter_class = filters.ExportTemplateFilter
 
 
-class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
+class TopologyMapViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
     write_serializer_class = serializers.WritableTopologyMapSerializer
@@ -82,13 +101,13 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
         return response
 
 
-class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
+class ImageAttachmentViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     write_serializer_class = serializers.WritableImageAttachmentSerializer
 
 
-class RecentActivityViewSet(ReadOnlyModelViewSet):
+class RecentActivityViewSet(FilterAccess, ReadOnlyModelViewSet):
     """
     List all UserActions to provide a log of recent activity.
     """

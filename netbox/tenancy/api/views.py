@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 
-from rest_framework.viewsets import ModelViewSet
-
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import (
+    CustomFieldModelViewSet,
+    FilterAccessModelViewSet,
+)
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
 from utilities.api import WritableSerializerMixin
@@ -13,7 +14,7 @@ from . import serializers
 # Tenant Groups
 #
 
-class TenantGroupViewSet(ModelViewSet):
+class TenantGroupViewSet(FilterAccessModelViewSet):
     queryset = TenantGroup.objects.all()
     serializer_class = serializers.TenantGroupSerializer
     filter_class = filters.TenantGroupFilter

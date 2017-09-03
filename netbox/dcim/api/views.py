@@ -4,7 +4,7 @@ from collections import OrderedDict
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
+from rest_framework.viewsets import ViewSet
 
 from django.conf import settings
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
@@ -18,7 +18,11 @@ from dcim.models import (
 )
 from dcim import filters
 from extras.api.serializers import RenderedGraphSerializer
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import (
+    CustomFieldModelViewSet,
+    FilterAccessGenericViewSet,
+    FilterAccessModelViewSet,
+)
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.api import IsAuthenticatedOrLoginNotRequired, ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
@@ -29,7 +33,7 @@ from . import serializers
 # Regions
 #
 
-class RegionViewSet(WritableSerializerMixin, ModelViewSet):
+class RegionViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = Region.objects.all()
     serializer_class = serializers.RegionSerializer
     write_serializer_class = serializers.WritableRegionSerializer
@@ -61,7 +65,7 @@ class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Rack groups
 #
 
-class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
+class RackGroupViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
     write_serializer_class = serializers.WritableRackGroupSerializer
@@ -72,7 +76,7 @@ class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
 # Rack roles
 #
 
-class RackRoleViewSet(ModelViewSet):
+class RackRoleViewSet(FilterAccessModelViewSet):
     queryset = RackRole.objects.all()
     serializer_class = serializers.RackRoleSerializer
     filter_class = filters.RackRoleFilter
@@ -113,7 +117,7 @@ class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Rack reservations
 #
 
-class RackReservationViewSet(WritableSerializerMixin, ModelViewSet):
+class RackReservationViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = RackReservation.objects.select_related('rack')
     serializer_class = serializers.RackReservationSerializer
     write_serializer_class = serializers.WritableRackReservationSerializer
@@ -128,7 +132,7 @@ class RackReservationViewSet(WritableSerializerMixin, ModelViewSet):
 # Manufacturers
 #
 
-class ManufacturerViewSet(ModelViewSet):
+class ManufacturerViewSet(FilterAccessModelViewSet):
     queryset = Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
     filter_class = filters.ManufacturerFilter
@@ -149,42 +153,42 @@ class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Device type components
 #
 
-class ConsolePortTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class ConsolePortTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = ConsolePortTemplate.objects.select_related('device_type__manufacturer')
     serializer_class = serializers.ConsolePortTemplateSerializer
     write_serializer_class = serializers.WritableConsolePortTemplateSerializer
     filter_class = filters.ConsolePortTemplateFilter
 
 
-class ConsoleServerPortTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class ConsoleServerPortTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = ConsoleServerPortTemplate.objects.select_related('device_type__manufacturer')
     serializer_class = serializers.ConsoleServerPortTemplateSerializer
     write_serializer_class = serializers.WritableConsoleServerPortTemplateSerializer
     filter_class = filters.ConsoleServerPortTemplateFilter
 
 
-class PowerPortTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class PowerPortTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = PowerPortTemplate.objects.select_related('device_type__manufacturer')
     serializer_class = serializers.PowerPortTemplateSerializer
     write_serializer_class = serializers.WritablePowerPortTemplateSerializer
     filter_class = filters.PowerPortTemplateFilter
 
 
-class PowerOutletTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class PowerOutletTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = PowerOutletTemplate.objects.select_related('device_type__manufacturer')
     serializer_class = serializers.PowerOutletTemplateSerializer
     write_serializer_class = serializers.WritablePowerOutletTemplateSerializer
     filter_class = filters.PowerOutletTemplateFilter
 
 
-class InterfaceTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class InterfaceTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = InterfaceTemplate.objects.select_related('device_type__manufacturer')
     serializer_class = serializers.InterfaceTemplateSerializer
     write_serializer_class = serializers.WritableInterfaceTemplateSerializer
     filter_class = filters.InterfaceTemplateFilter
 
 
-class DeviceBayTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class DeviceBayTemplateViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = DeviceBayTemplate.objects.select_related('device_type__manufacturer')
     serializer_class = serializers.DeviceBayTemplateSerializer
     write_serializer_class = serializers.WritableDeviceBayTemplateSerializer
@@ -195,7 +199,7 @@ class DeviceBayTemplateViewSet(WritableSerializerMixin, ModelViewSet):
 # Device roles
 #
 
-class DeviceRoleViewSet(ModelViewSet):
+class DeviceRoleViewSet(FilterAccessModelViewSet):
     queryset = DeviceRole.objects.all()
     serializer_class = serializers.DeviceRoleSerializer
     filter_class = filters.DeviceRoleFilter
@@ -205,7 +209,7 @@ class DeviceRoleViewSet(ModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(ModelViewSet):
+class PlatformViewSet(FilterAccessModelViewSet):
     queryset = Platform.objects.all()
     serializer_class = serializers.PlatformSerializer
     filter_class = filters.PlatformFilter
@@ -291,35 +295,35 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Device components
 #
 
-class ConsolePortViewSet(WritableSerializerMixin, ModelViewSet):
+class ConsolePortViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = ConsolePort.objects.select_related('device', 'cs_port__device')
     serializer_class = serializers.ConsolePortSerializer
     write_serializer_class = serializers.WritableConsolePortSerializer
     filter_class = filters.ConsolePortFilter
 
 
-class ConsoleServerPortViewSet(WritableSerializerMixin, ModelViewSet):
+class ConsoleServerPortViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = ConsoleServerPort.objects.select_related('device', 'connected_console__device')
     serializer_class = serializers.ConsoleServerPortSerializer
     write_serializer_class = serializers.WritableConsoleServerPortSerializer
     filter_class = filters.ConsoleServerPortFilter
 
 
-class PowerPortViewSet(WritableSerializerMixin, ModelViewSet):
+class PowerPortViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = PowerPort.objects.select_related('device', 'power_outlet__device')
     serializer_class = serializers.PowerPortSerializer
     write_serializer_class = serializers.WritablePowerPortSerializer
     filter_class = filters.PowerPortFilter
 
 
-class PowerOutletViewSet(WritableSerializerMixin, ModelViewSet):
+class PowerOutletViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = PowerOutlet.objects.select_related('device', 'connected_port__device')
     serializer_class = serializers.PowerOutletSerializer
     write_serializer_class = serializers.WritablePowerOutletSerializer
     filter_class = filters.PowerOutletFilter
 
 
-class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
+class InterfaceViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = Interface.objects.select_related('device')
     serializer_class = serializers.InterfaceSerializer
     write_serializer_class = serializers.WritableInterfaceSerializer
@@ -336,14 +340,14 @@ class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
         return Response(serializer.data)
 
 
-class DeviceBayViewSet(WritableSerializerMixin, ModelViewSet):
+class DeviceBayViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = DeviceBay.objects.select_related('installed_device')
     serializer_class = serializers.DeviceBaySerializer
     write_serializer_class = serializers.WritableDeviceBaySerializer
     filter_class = filters.DeviceBayFilter
 
 
-class InventoryItemViewSet(WritableSerializerMixin, ModelViewSet):
+class InventoryItemViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = InventoryItem.objects.select_related('device', 'manufacturer')
     serializer_class = serializers.InventoryItemSerializer
     write_serializer_class = serializers.WritableInventoryItemSerializer
@@ -354,19 +358,19 @@ class InventoryItemViewSet(WritableSerializerMixin, ModelViewSet):
 # Connections
 #
 
-class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
+class ConsoleConnectionViewSet(ListModelMixin, FilterAccessGenericViewSet):
     queryset = ConsolePort.objects.select_related('device', 'cs_port__device').filter(cs_port__isnull=False)
     serializer_class = serializers.ConsolePortSerializer
     filter_class = filters.ConsoleConnectionFilter
 
 
-class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
+class PowerConnectionViewSet(ListModelMixin, FilterAccessGenericViewSet):
     queryset = PowerPort.objects.select_related('device', 'power_outlet__device').filter(power_outlet__isnull=False)
     serializer_class = serializers.PowerPortSerializer
     filter_class = filters.PowerConnectionFilter
 
 
-class InterfaceConnectionViewSet(WritableSerializerMixin, ModelViewSet):
+class InterfaceConnectionViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')
     serializer_class = serializers.InterfaceConnectionSerializer
     write_serializer_class = serializers.WritableInterfaceConnectionSerializer
@@ -399,7 +403,11 @@ class ConnectedDeviceViewSet(ViewSet):
             raise MissingFilterException(detail='Request must include "peer-device" and "peer-interface" filters.')
 
         # Determine local interface from peer interface's connection
-        peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
+        peer_interface = get_object_or_404(
+            Interface.objects.filter_access(request.user),
+            device__name=peer_device_name,
+            name=peer_interface_name,
+        )
         local_interface = peer_interface.connected_interface
 
         if local_interface is None:

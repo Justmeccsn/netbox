@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 from django.shortcuts import get_object_or_404
 
@@ -10,7 +9,10 @@ from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from extras.api.serializers import RenderedGraphSerializer
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import (
+    CustomFieldModelViewSet,
+    FilterAccessModelViewSet,
+)
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -40,7 +42,7 @@ class ProviderViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 #  Circuit Types
 #
 
-class CircuitTypeViewSet(ModelViewSet):
+class CircuitTypeViewSet(FilterAccessModelViewSet):
     queryset = CircuitType.objects.all()
     serializer_class = serializers.CircuitTypeSerializer
     filter_class = filters.CircuitTypeFilter
@@ -61,7 +63,7 @@ class CircuitViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Circuit Terminations
 #
 
-class CircuitTerminationViewSet(WritableSerializerMixin, ModelViewSet):
+class CircuitTerminationViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = CircuitTermination.objects.select_related('circuit', 'site', 'interface__device')
     serializer_class = serializers.CircuitTerminationSerializer
     write_serializer_class = serializers.WritableCircuitTerminationSerializer

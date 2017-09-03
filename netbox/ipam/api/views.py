@@ -4,14 +4,16 @@ from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from ipam import filters
-from extras.api.views import CustomFieldModelViewSet
+from extras.api.views import (
+    CustomFieldModelViewSet,
+    FilterAccessModelViewSet,
+)
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -31,7 +33,7 @@ class VRFViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # RIRs
 #
 
-class RIRViewSet(ModelViewSet):
+class RIRViewSet(FilterAccessModelViewSet):
     queryset = RIR.objects.all()
     serializer_class = serializers.RIRSerializer
     filter_class = filters.RIRFilter
@@ -52,7 +54,7 @@ class AggregateViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Roles
 #
 
-class RoleViewSet(ModelViewSet):
+class RoleViewSet(FilterAccessModelViewSet):
     queryset = Role.objects.all()
     serializer_class = serializers.RoleSerializer
     filter_class = filters.RoleFilter
@@ -144,7 +146,7 @@ class IPAddressViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # VLAN groups
 #
 
-class VLANGroupViewSet(WritableSerializerMixin, ModelViewSet):
+class VLANGroupViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
     write_serializer_class = serializers.WritableVLANGroupSerializer
@@ -166,7 +168,7 @@ class VLANViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Services
 #
 
-class ServiceViewSet(WritableSerializerMixin, ModelViewSet):
+class ServiceViewSet(WritableSerializerMixin, FilterAccessModelViewSet):
     queryset = Service.objects.select_related('device')
     serializer_class = serializers.ServiceSerializer
     write_serializer_class = serializers.WritableServiceSerializer
