@@ -76,6 +76,11 @@ class ObjectListView(View):
     template_name = None
 
     def get(self, request):
+        # Filter access for query
+        try:
+            self.queryset = self.queryset.objects.filter_access(request.user)
+        except AttributeError:
+            pass
 
         model = self.queryset.model
         object_ct = ContentType.objects.get_for_model(model)

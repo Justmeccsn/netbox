@@ -134,10 +134,6 @@ class CircuitListView(ObjectListView):
     table = tables.CircuitTable
     template_name = 'circuits/circuit_list.html'
 
-    def get(self, request):
-        self.queryset = self.queryset.filter_access(request.user)
-        return super(CircuitListView, self).get(request)
-
 
 class CircuitView(View):
 

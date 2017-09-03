@@ -27,10 +27,6 @@ class TenantGroupListView(ObjectListView):
     table = tables.TenantGroupTable
     template_name = 'tenancy/tenantgroup_list.html'
 
-    def get(self, request):
-        self.queryset = self.queryset.filter_access(user=request.user)
-        return super(TenantGroupListView, self).get(request)
-
 
 class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.add_tenantgroup'
@@ -68,10 +64,6 @@ class TenantListView(ObjectListView):
     filter_form = forms.TenantFilterForm
     table = tables.TenantTable
     template_name = 'tenancy/tenant_list.html'
-
-    def get(self, request):
-        self.queryset = self.queryset.filter_access(user=request.user)
-        return super(TenantListView, self).get(request)
 
 
 class TenantView(View):

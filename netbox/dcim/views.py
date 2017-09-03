@@ -374,10 +374,6 @@ class RackListView(ObjectListView):
     table = tables.RackDetailTable
     template_name = 'dcim/rack_list.html'
 
-    def get(self, request):
-        self.queryset = self.queryset.filter_access(user=request.user)
-        return super(RackListView, self).get(request)
-
 
 class RackElevationListView(View):
     """
@@ -855,10 +851,6 @@ class DeviceListView(ObjectListView):
     filter_form = forms.DeviceFilterForm
     table = tables.DeviceDetailTable
     template_name = 'dcim/device_list.html'
-
-    def get(self, request):
-        self.queryset = self.queryset.filter_access(user=request.user)
-        return super(DeviceListView, self).get(request)
 
 
 class DeviceView(View):
