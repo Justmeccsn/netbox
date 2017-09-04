@@ -20,6 +20,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
+from utilities.middleware import GlobalUserMiddleware
 from utilities.forms import BootstrapMixin, CSVDataField
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
@@ -247,11 +248,18 @@ class ObjectDeleteView(GetReturnURLMixin, View):
     template_name = 'utilities/obj_delete.html'
 
     def get_object(self, kwargs):
+        try:
+            queryset = self.model.objects.filter_access(
+                GlobalUserMiddleware.user()
+            )
+        except AttributeError:
+            queryset = self.model
+
         # Look up object by slug if one has been provided. Otherwise, use PK.
         if 'slug' in kwargs:
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(queryset, slug=kwargs['slug'])
         else:
-            return get_object_or_404(self.model, pk=kwargs['pk'])
+            return get_object_or_404(queryset, pk=kwargs['pk'])
 
     def get(self, request, **kwargs):
 
@@ -317,10 +325,6 @@ class UserFilterObjectView(object):
 
 
 class UserFilteredObjectEditView(UserFilterObjectView, ObjectEditView):
-    pass
-
-
-class UserFilteredObjectDeleteView(UserFilterObjectView, ObjectDeleteView):
     pass
 
 
@@ -653,10 +657,9 @@ class BulkDeleteView(View):
     """
     cls = None
     parent_cls = None
-    queryset = None
+    querdyset = None
     filter = None
     table = None
-    form = None
     template_name = 'utilities/obj_bulk_delete.html'
     default_return_url = 'home'
 
@@ -707,6 +710,8 @@ class BulkDeleteView(View):
 
         # Retrieve objects being deleted
         queryset = self.queryset or self.cls.objects.all()
+        queryset = self.filter_queryset(queryset)
+
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
@@ -720,14 +725,21 @@ class BulkDeleteView(View):
             'return_url': return_url,
         })
 
+    def filter_queryset(self, queryset):
+        try:
+            return queryset.filter_access(GlobalUserMiddleware.user)
+        except AttributeError:
+            return queryset
+
     def get_form(self):
         """
         Provide a standard bulk delete form if none has been specified for the view
         """
 
         class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(queryset=self.cls.objects.all(), widget=MultipleHiddenInput)
+            pk = ModelMultipleChoiceField(
+                queryset=self.filter_queryset(self.cls.objects.all()),
+                widget=MultipleHiddenInput,
+            )
 
-        if self.form:
-            return self.form
         return BulkDeleteForm

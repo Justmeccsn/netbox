@@ -14,7 +14,7 @@ from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    UserFilteredObjectEditView, UserFilteredObjectDeleteView,
+    UserFilteredObjectEditView,
 )
 from . import filters, forms, tables
 from .constants import IPADDRESS_ROLE_ANYCAST
@@ -133,7 +133,7 @@ class VRFEditView(VRFCreateView):
     permission_required = 'ipam.change_vrf'
 
 
-class VRFDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vrf'
     model = VRF
     default_return_url = 'ipam:vrf_list'
@@ -573,7 +573,7 @@ class PrefixEditView(PrefixCreateView):
     permission_required = 'ipam.change_prefix'
 
 
-class PrefixDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
     model = Prefix
     template_name = 'ipam/prefix_delete.html'
@@ -683,7 +683,7 @@ class IPAddressEditView(IPAddressCreateView):
     permission_required = 'ipam.change_ipaddress'
 
 
-class IPAddressDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     model = IPAddress
     default_return_url = 'ipam:ipaddress_list'
@@ -804,7 +804,7 @@ class VLANEditView(VLANCreateView):
     permission_required = 'ipam.change_vlan'
 
 
-class VLANDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vlan'
     model = VLAN
     default_return_url = 'ipam:vlan_list'

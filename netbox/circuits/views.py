@@ -13,7 +13,7 @@ from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    UserFilteredObjectDeleteView, UserFilteredObjectEditView,
+    UserFilteredObjectEditView,
 )
 from . import filters, forms, tables
 from .models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
@@ -182,7 +182,7 @@ class CircuitEditView(CircuitCreateView):
     permission_required = 'circuits.change_circuit'
 
 
-class CircuitDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_circuit'
     model = Circuit
     default_return_url = 'circuits:circuit_list'

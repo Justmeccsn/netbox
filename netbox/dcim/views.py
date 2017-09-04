@@ -24,7 +24,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    UserFilteredObjectDeleteView, UserFilteredObjectEditView,
+    UserFilteredObjectEditView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -144,10 +144,6 @@ class ComponentDeleteView(ComponentMixin, ObjectDeleteView):
 
 
 class UserFilterComponentEditView(ComponentMixin, UserFilteredObjectEditView):
-    pass
-
-
-class UserFilterComponentDeleteView(ComponentMixin, UserFilteredObjectDeleteView):
     pass
 
 
@@ -1156,7 +1152,7 @@ class ConsolePortEditView(PermissionRequiredMixin, UserFilterComponentEditView):
         return self.model.objects.filter(device__in=Device.objects.filter_access(self.user))
 
 
-class ConsolePortDeleteView(PermissionRequiredMixin, UserFilterComponentDeleteView):
+class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_consoleport'
     model = ConsolePort
 
@@ -1392,7 +1388,7 @@ class PowerPortEditView(PermissionRequiredMixin, UserFilterComponentEditView):
     form_class = forms.PowerPortForm
 
 
-class PowerPortDeleteView(PermissionRequiredMixin, UserFilterComponentDeleteView):
+class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_powerport'
     model = PowerPort
 
@@ -1551,7 +1547,7 @@ class InterfaceEditView(PermissionRequiredMixin, UserFilterComponentEditView):
     form_class = forms.InterfaceForm
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, UserFilterComponentDeleteView):
+class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
 
