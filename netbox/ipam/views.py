@@ -13,8 +13,7 @@ from django.views.generic import View
 from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    UserFilteredObjectEditView,
+    BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView
 )
 from . import filters, forms, tables
 from .constants import IPADDRESS_ROLE_ANYCAST
@@ -121,7 +120,7 @@ class VRFView(View):
         })
 
 
-class VRFCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class VRFCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_vrf'
     model = VRF
     form_class = forms.VRFForm
@@ -561,7 +560,7 @@ class PrefixIPAddressesView(View):
         })
 
 
-class PrefixCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class PrefixCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_prefix'
     model = Prefix
     form_class = forms.PrefixForm
@@ -671,7 +670,7 @@ class IPAddressView(View):
         })
 
 
-class IPAddressCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_ipaddress'
     model = IPAddress
     form_class = forms.IPAddressForm
@@ -792,7 +791,7 @@ class VLANView(View):
         })
 
 
-class VLANCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class VLANCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_vlan'
     model = VLAN
     form_class = forms.VLANForm

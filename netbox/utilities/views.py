@@ -170,11 +170,18 @@ class ObjectEditView(GetReturnURLMixin, View):
     template_name = 'utilities/obj_edit.html'
 
     def get_object(self, kwargs):
-        # Look up object by slug or PK. Return None if neither was provided.
+        try:
+            queryset = self.model.objects.filter_access(
+                GlobalUserMiddleware.user()
+            )
+        except AttributeError:
+            queryset = self.model
+
+        # Look up object by slug if one has been provided. Otherwise, use PK.
         if 'slug' in kwargs:
-            return get_object_or_404(self.model, slug=kwargs['slug'])
+            return get_object_or_404(queryset, slug=kwargs['slug'])
         elif 'pk' in kwargs:
-            return get_object_or_404(self.model, pk=kwargs['pk'])
+            return get_object_or_404(queryset, pk=kwargs['pk'])
         return self.model()
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
@@ -301,31 +308,6 @@ class ObjectDeleteView(GetReturnURLMixin, View):
             'obj_type': self.model._meta.verbose_name,
             'return_url': self.get_return_url(request, obj),
         })
-
-
-class UserFilterObjectView(object):
-    def filter_model(self):
-        return self.model.objects.filter_access(self.user)
-
-    def get_object(self, kwargs):
-        # Look up object by slug or PK. Return None if neither was provided.
-        if 'slug' in kwargs:
-            return get_object_or_404(self.filter_model(), slug=kwargs['slug'])
-        elif 'pk' in kwargs:
-            return get_object_or_404(self.filter_model(), pk=kwargs['pk'])
-        return self.model()
-
-    def get(self, request, *args, **kwargs):
-        self.user = self.request.user
-        return super(UserFilterObjectView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.user = self.request.user
-        return super(UserFilterObjectView, self).post(request, *args, **kwargs)
-
-
-class UserFilteredObjectEditView(UserFilterObjectView, ObjectEditView):
-    pass
 
 
 class BulkCreateView(View):
@@ -537,10 +519,15 @@ class BulkEditView(View):
             return_url = reverse(self.default_return_url)
 
         # Are we editing *all* objects in the queryset or just a selected subset?
+        allowed_objects = self.filter_queryset(self.cls.objects.only('pk'))
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk')).qs]
+            pk_list = [obj.pk for obj in self.filter(request.GET, allowed_objects).qs]
         else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+            pk_list = [
+                int(pk)
+                for pk in request.POST.getlist('pk')
+                if pk in allowed_objects
+            ]
 
         if '_apply' in request.POST:
             form = self.form(self.cls, request.POST)
@@ -640,6 +627,12 @@ class BulkEditView(View):
 
         return len(pk_list) if objs_updated else 0
 
+    def filter_queryset(self, queryset):
+        try:
+            return queryset.filter_access(GlobalUserMiddleware.user)
+        except AttributeError:
+            return queryset
+
 
 class BulkDeleteView(View):
     """
@@ -681,10 +674,15 @@ class BulkDeleteView(View):
             return_url = reverse(self.default_return_url)
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
+        allowed_objects = self.filter_queryset(self.cls.objects.only('pk'))
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk')).qs]
+            pk_list = [obj.pk for obj in self.filter(request.GET, allowed_objects).qs]
         else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+            pk_list = [
+                int(pk)
+                for pk in request.POST.getlist('pk')
+                if pk in allowed_objects
+            ]
 
         form_cls = self.get_form()
 
@@ -710,7 +708,6 @@ class BulkDeleteView(View):
 
         # Retrieve objects being deleted
         queryset = self.queryset or self.cls.objects.all()
-        queryset = self.filter_queryset(queryset)
 
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:

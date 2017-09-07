@@ -23,8 +23,7 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    UserFilteredObjectEditView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView
 )
 from . import filters, forms, tables
 from .models import (
@@ -140,10 +139,6 @@ class ComponentEditView(ComponentMixin, ObjectEditView):
 
 
 class ComponentDeleteView(ComponentMixin, ObjectDeleteView):
-    pass
-
-
-class UserFilterComponentEditView(ComponentMixin, UserFilteredObjectEditView):
     pass
 
 
@@ -449,7 +444,7 @@ class RackView(View):
         })
 
 
-class RackCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class RackCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rack'
     model = Rack
     form_class = forms.RackForm
@@ -461,7 +456,7 @@ class RackEditView(RackCreateView):
     permission_required = 'dcim.change_rack'
 
 
-class RackDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rack'
     model = Rack
     default_return_url = 'dcim:rack_list'
@@ -990,7 +985,7 @@ class DeviceConfigView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_device'
     model = Device
     form_class = forms.DeviceForm
@@ -1002,7 +997,7 @@ class DeviceEditView(DeviceCreateView):
     permission_required = 'dcim.change_device'
 
 
-class DeviceDeleteView(PermissionRequiredMixin, UserFilteredObjectDeleteView):
+class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_device'
     model = Device
     default_return_url = 'dcim:device_list'
@@ -1143,7 +1138,7 @@ def consoleport_disconnect(request, pk):
     })
 
 
-class ConsolePortEditView(PermissionRequiredMixin, UserFilterComponentEditView):
+class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
     form_class = forms.ConsolePortForm
@@ -1382,7 +1377,7 @@ def powerport_disconnect(request, pk):
     })
 
 
-class PowerPortEditView(PermissionRequiredMixin, UserFilterComponentEditView):
+class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
     form_class = forms.PowerPortForm
@@ -1541,7 +1536,7 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     model_form = forms.InterfaceForm
 
 
-class InterfaceEditView(PermissionRequiredMixin, UserFilterComponentEditView):
+class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
     form_class = forms.InterfaceForm

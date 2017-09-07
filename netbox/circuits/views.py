@@ -12,8 +12,7 @@ from django.views.generic import View
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.forms import ConfirmationForm
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
-    UserFilteredObjectEditView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView
 )
 from . import filters, forms, tables
 from .models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
@@ -170,7 +169,7 @@ class CircuitView(View):
         })
 
 
-class CircuitCreateView(PermissionRequiredMixin, UserFilteredObjectEditView):
+class CircuitCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuit'
     model = Circuit
     form_class = forms.CircuitForm
