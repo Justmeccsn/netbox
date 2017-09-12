@@ -4,11 +4,13 @@
 {% block content %}
 <h1>{% block title %}Rack Reservations{% endblock %}</h1>
 <div class="row">
-	<div class="col-md-9">
+    <div class={% if user.is_superuser %}"col-md-9"{% else %}"col-md-12"{% endif %}>
         {% include 'utilities/obj_table.html' with bulk_delete_url='dcim:rackreservation_bulk_delete' %}
     </div>
-	<div class="col-md-3">
-		{% include 'inc/search_panel.html' %}
-	</div>
+    {% if user.is_superuser %}
+        <div class="col-md-3">
+            {% include 'inc/search_panel.html' %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

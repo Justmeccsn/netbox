@@ -9,7 +9,7 @@
 <h1>{% block title %}Rack Elevations{% endblock %}</h1>
 <div class="row">
     {% if page %}
-        <div class="col-md-9">
+        <div class={% if user.is_superuser %}"col-md-9"{% else %}"col-md-12"{% endif %}>
             <div style="white-space: nowrap; overflow-x: scroll;">
                 {% for rack in page %}
                     <div style="display: inline-block; width: 266px">
@@ -34,13 +34,15 @@
             {% include 'inc/paginator.html' %}
         </div>
     {% else %}
-        <div class="col-md-9">
+        <div class={% if user.is_superuser %}"col-md-9"{% else %}"col-md-12"{% endif %}>
             <p>No racks found</p>
         </div>
     {% endif %}
-    <div class="col-md-3">
-		{% include 'inc/search_panel.html' %}
-    </div>
+    {% if user.is_superuser %}
+        <div class="col-md-3">
+    		{% include 'inc/search_panel.html' %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
 
