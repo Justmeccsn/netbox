@@ -15,7 +15,7 @@ from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
     FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
-    FilterTreeNodeMultipleChoiceField,
+    FilterTreeNodeMultipleChoiceField, FormFilterQuerySets, ModelFormFilterQuerySets
 )
 from utilities.middleware import GlobalUserMiddleware
 from .formfields import MACAddressFormField
@@ -50,7 +50,7 @@ def get_device_by_name_or_pk(name):
     return device
 
 
-class DeviceComponentForm(BootstrapMixin, forms.Form):
+class DeviceComponentForm(BootstrapMixin, FormFilterQuerySets):
     """
     Allow inclusion of the parent device as context for limiting field choices.
     """
@@ -63,7 +63,7 @@ class DeviceComponentForm(BootstrapMixin, forms.Form):
 # Regions
 #
 
-class RegionForm(BootstrapMixin, forms.ModelForm):
+class RegionForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -99,7 +99,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(forms.ModelForm):
+class SiteCSVForm(ModelFormFilterQuerySets):
     region = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -161,7 +161,7 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Rack groups
 #
 
-class RackGroupForm(BootstrapMixin, forms.ModelForm):
+class RackGroupForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -169,7 +169,7 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
-class RackGroupFilterForm(BootstrapMixin, forms.Form):
+class RackGroupFilterForm(BootstrapMixin, FormFilterQuerySets):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('rack_groups')), to_field_name='slug')
 
 
@@ -177,7 +177,7 @@ class RackGroupFilterForm(BootstrapMixin, forms.Form):
 # Rack roles
 #
 
-class RackRoleForm(BootstrapMixin, TenancyForm, forms.ModelForm):
+class RackRoleForm(BootstrapMixin, TenancyForm, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -219,7 +219,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(forms.ModelForm):
+class RackCSVForm(ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
@@ -332,7 +332,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Rack reservations
 #
 
-class RackReservationForm(BootstrapMixin, forms.ModelForm):
+class RackReservationForm(BootstrapMixin, ModelFormFilterQuerySets):
     units = SimpleArrayField(forms.IntegerField(), widget=ArrayFieldSelectMultiple(attrs={'size': 10}))
 
     class Meta:
@@ -356,7 +356,7 @@ class RackReservationForm(BootstrapMixin, forms.ModelForm):
         return unit_choices
 
 
-class RackReservationFilterForm(BootstrapMixin, forms.Form):
+class RackReservationFilterForm(BootstrapMixin, FormFilterQuerySets):
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('racks__reservations')),
@@ -373,7 +373,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
 # Manufacturers
 #
 
-class ManufacturerForm(BootstrapMixin, forms.ModelForm):
+class ManufacturerForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -443,7 +443,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Device component templates
 #
 
-class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
+class ConsolePortTemplateForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = ConsolePortTemplate
@@ -457,7 +457,7 @@ class ConsolePortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class ConsoleServerPortTemplateForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = ConsoleServerPortTemplate
@@ -471,7 +471,7 @@ class ConsoleServerPortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class PowerPortTemplateForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = PowerPortTemplate
@@ -485,7 +485,7 @@ class PowerPortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
+class PowerOutletTemplateForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = PowerOutletTemplate
@@ -499,7 +499,7 @@ class PowerOutletTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
+class InterfaceTemplateForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = InterfaceTemplate
@@ -524,7 +524,7 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = []
 
 
-class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
+class DeviceBayTemplateForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = DeviceBayTemplate
@@ -542,7 +542,7 @@ class DeviceBayTemplateCreateForm(DeviceComponentForm):
 # Device roles
 #
 
-class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
+class DeviceRoleForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -554,7 +554,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
 # Platforms
 #
 
-class PlatformForm(BootstrapMixin, forms.ModelForm):
+class PlatformForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -694,7 +694,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(ModelFormFilterQuerySets):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -911,7 +911,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Bulk device component creation
 #
 
-class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
+class DeviceBulkAddComponentForm(BootstrapMixin, FormFilterQuerySets):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     name_pattern = ExpandableNameField(label='Name')
 
@@ -927,7 +927,7 @@ class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
 # Console ports
 #
 
-class ConsolePortForm(BootstrapMixin, forms.ModelForm):
+class ConsolePortForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = ConsolePort
@@ -941,7 +941,7 @@ class ConsolePortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class ConsoleConnectionCSVForm(forms.ModelForm):
+class ConsoleConnectionCSVForm(ModelFormFilterQuerySets):
     console_server = FlexibleModelChoiceField(
         queryset=Device.objects.filter(device_type__is_console_server=True),
         to_field_name='name',
@@ -1021,7 +1021,7 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
         return cs_port
 
 
-class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1096,7 +1096,7 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
 # Console server ports
 #
 
-class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
+class ConsoleServerPortForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = ConsoleServerPort
@@ -1110,7 +1110,7 @@ class ConsoleServerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, FormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1188,7 +1188,7 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
 # Power ports
 #
 
-class PowerPortForm(BootstrapMixin, forms.ModelForm):
+class PowerPortForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = PowerPort
@@ -1202,7 +1202,7 @@ class PowerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PowerConnectionCSVForm(forms.ModelForm):
+class PowerConnectionCSVForm(ModelFormFilterQuerySets):
     pdu = FlexibleModelChoiceField(
         queryset=Device.objects.filter(device_type__is_pdu=True),
         to_field_name='name',
@@ -1282,7 +1282,7 @@ class PowerConnectionCSVForm(forms.ModelForm):
         return power_outlet
 
 
-class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1357,7 +1357,7 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
 # Power outlets
 #
 
-class PowerOutletForm(BootstrapMixin, forms.ModelForm):
+class PowerOutletForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = PowerOutlet
@@ -1371,7 +1371,7 @@ class PowerOutletCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, FormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -1449,7 +1449,7 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 # Interfaces
 #
 
-class InterfaceForm(BootstrapMixin, forms.ModelForm):
+class InterfaceForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = Interface
@@ -1539,7 +1539,7 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 # Interface connections
 #
 
-class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, ModelFormFilterQuerySets):
     interface_a = forms.ChoiceField(
         choices=[],
         widget=SelectWithDisabled,
@@ -1625,7 +1625,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
             ]
 
 
-class InterfaceConnectionCSVForm(forms.ModelForm):
+class InterfaceConnectionCSVForm(ModelFormFilterQuerySets):
     device_a = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -1709,7 +1709,7 @@ class InterfaceConnectionDeletionForm(ConfirmationForm):
 # Device bays
 #
 
-class DeviceBayForm(BootstrapMixin, forms.ModelForm):
+class DeviceBayForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = DeviceBay
@@ -1723,7 +1723,7 @@ class DeviceBayCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
+class PopulateDeviceBayForm(BootstrapMixin, FormFilterQuerySets):
     installed_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         label='Child Device',
@@ -1747,17 +1747,17 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 # Connections
 #
 
-class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
+class ConsoleConnectionFilterForm(BootstrapMixin, FormFilterQuerySets):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
 
-class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
+class PowerConnectionFilterForm(BootstrapMixin, FormFilterQuerySets):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
 
-class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
+class InterfaceConnectionFilterForm(BootstrapMixin, FormFilterQuerySets):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
 
@@ -1766,7 +1766,7 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
 # Inventory items
 #
 
-class InventoryItemForm(BootstrapMixin, forms.ModelForm):
+class InventoryItemForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = InventoryItem

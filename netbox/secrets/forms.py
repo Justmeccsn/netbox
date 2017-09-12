@@ -7,7 +7,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
+from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField, ModelFormFilterQuerySets, FormFilterQuerySets
 from .models import Secret, SecretRole, UserKey
 
 
@@ -35,7 +35,7 @@ def validate_rsa_key(key, is_secret=True):
 # Secret roles
 #
 
-class SecretRoleForm(BootstrapMixin, forms.ModelForm):
+class SecretRoleForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -47,7 +47,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 # Secrets
 #
 
-class SecretForm(BootstrapMixin, forms.ModelForm):
+class SecretForm(BootstrapMixin, ModelFormFilterQuerySets):
     plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
                                 widget=forms.PasswordInput(attrs={'class': 'requires-session-key'}))
     plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)',
@@ -65,7 +65,7 @@ class SecretForm(BootstrapMixin, forms.ModelForm):
             })
 
 
-class SecretCSVForm(forms.ModelForm):
+class SecretCSVForm(ModelFormFilterQuerySets):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -108,7 +108,7 @@ class SecretBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = ['name']
 
 
-class SecretFilterForm(BootstrapMixin, forms.Form):
+class SecretFilterForm(BootstrapMixin, FormFilterQuerySets):
     q = forms.CharField(required=False, label='Search')
     role = FilterChoiceField(
         queryset=SecretRole.objects.annotate(filter_count=Count('secrets')),

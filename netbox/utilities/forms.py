@@ -447,6 +447,26 @@ class LaxURLField(forms.URLField):
 #
 # Forms
 #
+class FilterQuerySets(object):
+
+    def __init__(self, *args, **kwargs):
+        from utilities.middleware import GlobalUserMiddleware
+
+        super(FilterQuerySets, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            try:
+                field.queryset = field.queryset.filter_access(GlobalUserMiddleware.user)
+            except AttributeError:
+                pass
+
+
+class ModelFormFilterQuerySets(FilterQuerySets, forms.ModelForm):
+    pass
+
+
+class FormFilterQuerySets(FilterQuerySets, forms.Form):
+    pass
+
 
 class BootstrapMixin(forms.BaseForm):
 
@@ -499,7 +519,7 @@ class ChainedFieldsMixin(forms.BaseForm):
                     field.queryset = field.queryset.none()
 
 
-class ReturnURLForm(forms.Form):
+class ReturnURLForm(FormFilterQuerySets):
     """
     Provides a hidden return URL field to control where the user is directed after the form is submitted.
     """
@@ -513,7 +533,7 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
-class BulkEditForm(forms.Form):
+class BulkEditForm(FormFilterQuerySets):
 
     def __init__(self, model, *args, **kwargs):
         super(BulkEditForm, self).__init__(*args, **kwargs)

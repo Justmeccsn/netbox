@@ -6,6 +6,7 @@ from django.db.models import Count
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField, SlugField,
+    FormFilterQuerySets, ModelFormFilterQuerySets
 )
 from utilities.middleware import GlobalUserMiddleware
 from .models import Tenant, TenantGroup
@@ -15,7 +16,7 @@ from .models import Tenant, TenantGroup
 # Tenant groups
 #
 
-class TenantGroupForm(BootstrapMixin, forms.ModelForm):
+class TenantGroupForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -46,7 +47,7 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
         self.fields['group'].queryset = query.filter_access(user)
 
 
-class TenantCSVForm(forms.ModelForm):
+class TenantCSVForm(ModelFormFilterQuerySets):
     slug = SlugField()
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -89,7 +90,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Tenancy form extension
 #
 
-class TenancyForm(ChainedFieldsMixin, forms.Form):
+class TenancyForm(ChainedFieldsMixin, FormFilterQuerySets):
     tenant_group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,

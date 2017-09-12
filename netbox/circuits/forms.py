@@ -9,7 +9,7 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
-    SmallTextarea, SlugField,
+    SmallTextarea, SlugField, ModelFormFilterQuerySets
 )
 
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -39,7 +39,7 @@ class ProviderForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ProviderCSVForm(forms.ModelForm):
+class ProviderCSVForm(ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -77,7 +77,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Circuit types
 #
 
-class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
+class CircuitTypeForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -105,7 +105,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class CircuitCSVForm(forms.ModelForm):
+class CircuitCSVForm(ModelFormFilterQuerySets):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
@@ -177,7 +177,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Circuit terminations
 #
 
-class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=forms.Select(

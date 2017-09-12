@@ -4,7 +4,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-from utilities.forms import BootstrapMixin, BulkEditForm, LaxURLField
+from utilities.forms import BootstrapMixin, BulkEditForm, FormFilterQuerySets, LaxURLField, ModelFormFilterQuerySets
 from .models import (
     CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue,
     ImageAttachment,
@@ -73,7 +73,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
     return field_dict
 
 
-class CustomFieldForm(forms.ModelForm):
+class CustomFieldForm(ModelFormFilterQuerySets):
 
     def __init__(self, *args, **kwargs):
 
@@ -147,7 +147,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
             self.custom_fields.append(name)
 
 
-class CustomFieldFilterForm(forms.Form):
+class CustomFieldFilterForm(FormFilterQuerySets):
 
     def __init__(self, *args, **kwargs):
 
@@ -162,7 +162,7 @@ class CustomFieldFilterForm(forms.Form):
             self.fields[name] = field
 
 
-class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
+class ImageAttachmentForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = ImageAttachment

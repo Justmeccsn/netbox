@@ -11,7 +11,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, CSVChoiceField,
     ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, ReturnURLForm, SlugField,
-    add_blank_choice,
+    add_blank_choice, ModelFormFilterQuerySets, FormFilterQuerySets
 )
 from utilities.middleware import GlobalUserMiddleware
 from .models import (
@@ -50,7 +50,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VRFCSVForm(forms.ModelForm):
+class VRFCSVForm(ModelFormFilterQuerySets):
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -92,7 +92,7 @@ class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # RIRs
 #
 
-class RIRForm(BootstrapMixin, forms.ModelForm):
+class RIRForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -100,7 +100,7 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'is_private']
 
 
-class RIRFilterForm(BootstrapMixin, forms.Form):
+class RIRFilterForm(BootstrapMixin, FormFilterQuerySets):
     is_private = forms.NullBooleanField(required=False, label='Private', widget=forms.Select(choices=[
         ('', '---------'),
         ('True', 'Yes'),
@@ -124,7 +124,7 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class AggregateCSVForm(forms.ModelForm):
+class AggregateCSVForm(ModelFormFilterQuerySets):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -164,7 +164,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Roles
 #
 
-class RoleForm(BootstrapMixin, TenancyForm, forms.ModelForm):
+class RoleForm(BootstrapMixin, TenancyForm, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -232,7 +232,8 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         query = self.fields['vlan'].queryset
         self.fields['vlan'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
-class PrefixCSVForm(forms.ModelForm):
+
+class PrefixCSVForm(ModelFormFilterQuerySets):
     vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -575,7 +576,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
         return ipaddress
 
 
-class IPAddressPatternForm(BootstrapMixin, forms.Form):
+class IPAddressPatternForm(BootstrapMixin, FormFilterQuerySets):
     pattern = ExpandableIPAddressField(label='Address pattern')
 
 
@@ -592,7 +593,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
 
-class IPAddressCSVForm(forms.ModelForm):
+class IPAddressCSVForm(ModelFormFilterQuerySets):
     vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -741,7 +742,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # VLAN groups
 #
 
-class VLANGroupForm(BootstrapMixin, forms.ModelForm):
+class VLANGroupForm(BootstrapMixin, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
@@ -749,7 +750,7 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
-class VLANGroupFilterForm(BootstrapMixin, forms.Form):
+class VLANGroupFilterForm(BootstrapMixin, FormFilterQuerySets):
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
         to_field_name='slug',
@@ -794,7 +795,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VLANCSVForm(forms.ModelForm):
+class VLANCSVForm(ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -907,7 +908,7 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Services
 #
 
-class ServiceForm(BootstrapMixin, forms.ModelForm):
+class ServiceForm(BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = Service
