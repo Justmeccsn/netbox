@@ -501,7 +501,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 class VLANGroupQuerySet(ObjectFilterQuerySet):
 
     def build_args(self, user):
-        from netbox.dcim.models import Site
+        from dcim.models import Site
         return models.Q(
             site__in=Site.objects.filter_access(user)
         )

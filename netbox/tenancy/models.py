@@ -37,7 +37,7 @@ class TenantGroup(models.Model):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
 
 
-class TenantQuerySet(models.query.QuerySet):
+class TenantQuerySet(ObjectFilterQuerySet):
     def build_args(self, user):
         return models.Q(users__in=[user])
 

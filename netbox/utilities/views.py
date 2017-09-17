@@ -629,7 +629,7 @@ class BulkEditView(View):
 
     def filter_queryset(self, queryset):
         try:
-            return queryset.filter_access(GlobalUserMiddleware.user)
+            return queryset.filter_access(GlobalUserMiddleware.user())
         except AttributeError:
             return queryset
 
@@ -724,7 +724,7 @@ class BulkDeleteView(View):
 
     def filter_queryset(self, queryset):
         try:
-            return queryset.filter_access(GlobalUserMiddleware.user)
+            return queryset.filter_access(GlobalUserMiddleware.user())
         except AttributeError:
             return queryset
 

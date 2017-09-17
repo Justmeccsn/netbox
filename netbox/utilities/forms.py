@@ -455,7 +455,7 @@ class FilterQuerySets(object):
         super(FilterQuerySets, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             try:
-                field.queryset = field.queryset.filter_access(GlobalUserMiddleware.user)
+                field.queryset = field.queryset.filter_access(GlobalUserMiddleware.user())
             except AttributeError:
                 pass
 
