@@ -121,10 +121,12 @@ class TenancyForm(ChainedFieldsMixin, FormFilterQuerySets):
         super(TenancyForm, self).__init__(*args, **kwargs)
         user = GlobalUserMiddleware.user()
         if not user.is_superuser:
-            query = self.fields['tenant'].queryset
-            self.fields['tenant'].queryset = query.filter_access(user)
-            self.fields['tenant'].required = True
+            self.initial['tenant'] = user.tenants.first()
+            self.fields['tenant'].queryset = user.tenants.all()
+            self.fields['tenant'].empty_label = None
 
-            query = self.fields['tenant_group'].queryset
-            self.fields['tenant_group'].queryset = query.filter_access(user)
-            self.fields['tenant_group'].required = True
+            self.fields['tenant_group'].empty_label = None
+            try:
+                self.initial['tenant_group'] = user.tenants.first().group
+            except AttributeError:
+                pass
