@@ -296,6 +296,9 @@ class Secret(CreatedUpdatedModel):
     class Meta:
         ordering = ['device', 'role', 'name']
         unique_together = ['device', 'role', 'name']
+        permissions = (
+            ('view', 'Can see Secret options'),
+        )
 
     def __init__(self, *args, **kwargs):
         self.plaintext = kwargs.pop('plaintext', None)

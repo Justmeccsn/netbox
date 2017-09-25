@@ -33,7 +33,8 @@ def get_session_key(request):
 # Secret roles
 #
 
-class SecretRoleListView(ObjectListView):
+class SecretRoleListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'secrets.view'
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
     template_name = 'secrets/secretrole_list.html'
@@ -65,7 +66,8 @@ class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 @method_decorator(login_required, name='dispatch')
-class SecretListView(ObjectListView):
+class SecretListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'secrets.view'
     queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
     filter_form = forms.SecretFilterForm
@@ -74,7 +76,8 @@ class SecretListView(ObjectListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class SecretView(View):
+class SecretView(PermissionRequiredMixin, View):
+    permission_required = 'secrets.view'
 
     def get(self, request, pk):
 

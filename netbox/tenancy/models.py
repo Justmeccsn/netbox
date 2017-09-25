@@ -62,6 +62,9 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['group', 'name']
+        permissions = (
+            ('view', 'Can see tenant options'),
+        )
 
     def __str__(self):
         return self.name

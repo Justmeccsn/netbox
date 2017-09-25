@@ -41,16 +41,20 @@
                             {% if perms.dcim.add_region %}
                                 <li class="subnav"><a href="{% url 'dcim:region_add' %}"><i class="fa fa-plus"></i> Add a Region</a></li>
                             {% endif %}
-                            <li class="divider"></li>
-                            <li><a href="{% url 'tenancy:tenant_list' %}"><strong>Tenants</strong></a></li>
-                            {% if perms.tenancy.add_tenant %}
-                                <li class="subnav"><a href="{% url 'tenancy:tenant_add' %}"><i class="fa fa-plus"></i> Add a Tenant</a></li>
-                                <li class="subnav"><a href="{% url 'tenancy:tenant_import' %}"><i class="fa fa-download"></i> Import Tenants</a></li>
+                            {% if perms.tenancy.view %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'tenancy:tenant_list' %}"><strong>Tenants</strong></a></li>
+                                {% if perms.tenancy.add_tenant %}
+                                    <li class="subnav"><a href="{% url 'tenancy:tenant_add' %}"><i class="fa fa-plus"></i> Add a Tenant</a></li>
+                                    <li class="subnav"><a href="{% url 'tenancy:tenant_import' %}"><i class="fa fa-download"></i> Import Tenants</a></li>
+                                {% endif %}
                             {% endif %}
-                            <li class="divider"></li>
-                            <li><a href="{% url 'tenancy:tenantgroup_list' %}"><strong>Tenant Groups</strong></a></li>
-                            {% if perms.tenancy.add_tenantgroup %}
-                                <li class="subnav"><a href="{% url 'tenancy:tenantgroup_add' %}"><i class="fa fa-plus"></i> Add a Tenant Group</a></li>
+                            {% if perms.tenancy.view %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'tenancy:tenantgroup_list' %}"><strong>Tenant Groups</strong></a></li>
+                                {% if perms.tenancy.add_tenantgroup %}
+                                    <li class="subnav"><a href="{% url 'tenancy:tenantgroup_add' %}"><i class="fa fa-plus"></i> Add a Tenant Group</a></li>
+                                {% endif %}
                             {% endif %}
                         </ul>
                     </li>
@@ -223,7 +227,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    {% if request.user.is_authenticated %}
+                    {% if request.user.is_authenticated and perms.secrets.view %}
                         <li class="dropdown{% if request.path|contains:'/secrets/' %} active{% endif %}">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Secrets <span class="caret"></span></a>
                             <ul class="dropdown-menu">
