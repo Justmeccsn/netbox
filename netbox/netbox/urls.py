@@ -49,6 +49,9 @@ _patterns = [
     # Error testing
     url(r'^500/$', trigger_500),
 
+    # ADMIN LOGOUT
+    url(r'^admin/logout/$', LogoutView.as_view(), name='admin:logout'),
+
     # Admin
     url(r'^admin/', admin.site.urls),
 
