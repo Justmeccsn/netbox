@@ -397,7 +397,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 class RackReservationQuerySet(ObjectFilterQuerySet):
 
     def build_args(self, user):
-        return models.Q(user__tenants__in=user.tenants)
+        return models.Q(user__tenants__in=user.tenants.all())
 
 
 @python_2_unicode_compatible

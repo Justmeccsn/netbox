@@ -22,11 +22,13 @@
                     <h4 class="list-group-item-heading"><a href="{% url 'dcim:site_list' %}">Sites</a></h4>
                     <p class="list-group-item-text text-muted">Geographic locations</p>
                 </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.tenant_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
-                    <p class="list-group-item-text text-muted">Customers or departments</p>
-                </div>
+                {% if perms.tenancy.view %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.tenant_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
+                        <p class="list-group-item-text text-muted">Customers or departments</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div class="panel panel-default">

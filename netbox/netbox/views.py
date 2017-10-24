@@ -122,41 +122,41 @@ class HomeView(View):
     template_name = 'home.html'
 
     def get(self, request):
-
+        user = request.user
         stats = {
 
             # Organization
-            'site_count': Site.objects.count(),
-            'tenant_count': Tenant.objects.count(),
+            'site_count': Site.objects.filter_access(user).count(),
+            'tenant_count': Tenant.objects.filter_access(user).count(),
 
             # DCIM
-            'rack_count': Rack.objects.count(),
-            'device_count': Device.objects.count(),
-            'interface_connections_count': InterfaceConnection.objects.count(),
-            'console_connections_count': ConsolePort.objects.filter(cs_port__isnull=False).count(),
-            'power_connections_count': PowerPort.objects.filter(power_outlet__isnull=False).count(),
+            'rack_count': Rack.objects.filter_access(user).count(),
+            'device_count': Device.objects.filter_access(user).count(),
+            'interface_connections_count': InterfaceConnection.objects.filter_access(user).count(),
+            'console_connections_count': ConsolePort.objects.filter_access(user).filter(cs_port__isnull=False).count(),
+            'power_connections_count': PowerPort.objects.filter_access(user).filter(power_outlet__isnull=False).count(),
 
             # IPAM
-            'vrf_count': VRF.objects.count(),
-            'aggregate_count': Aggregate.objects.count(),
-            'prefix_count': Prefix.objects.count(),
-            'ipaddress_count': IPAddress.objects.count(),
-            'vlan_count': VLAN.objects.count(),
+            'vrf_count': VRF.objects.filter_access(user).count(),
+            'aggregate_count': Aggregate.objects.filter_access(user).count(),
+            'prefix_count': Prefix.objects.filter_access(user).count(),
+            'ipaddress_count': IPAddress.objects.filter_access(user).count(),
+            'vlan_count': VLAN.objects.filter_access(user).count(),
 
             # Circuits
-            'provider_count': Provider.objects.count(),
-            'circuit_count': Circuit.objects.count(),
-
-            # Secrets
-            'secret_count': Secret.objects.count(),
+            'provider_count': Provider.objects.filter_access(user).count(),
+            'circuit_count': Circuit.objects.filter_access(user).count(),
 
         }
+        activity_query = UserAction.objects.select_related('user')
+        if not user.is_superuser:
+            activity_query = activity_query.filter(user__tenants__in=user.tenants.all())
 
         return render(request, self.template_name, {
             'search_form': SearchForm(),
             'stats': stats,
             'topology_maps': TopologyMap.objects.filter(site__isnull=True),
-            'recent_activity': UserAction.objects.select_related('user')[:50]
+            'recent_activity': activity_query[:50]
         })
 
 
