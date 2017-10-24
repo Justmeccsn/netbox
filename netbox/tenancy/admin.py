@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from .models import Tenant
@@ -43,6 +44,8 @@ class TenancyUserAdminForm(UserChangeForm, M2MTenantGroupAdminForm):
 
 
 class TenancyUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'is_active', 'is_superuser', 'user_tenant', 'user_group')
+
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
         (_('Permissions'), {
@@ -57,6 +60,29 @@ class TenancyUserAdmin(UserAdmin):
     )
 
     form = TenancyUserAdminForm
+
+    def user_tenant(self, obj):
+        try:
+            return format_html(
+                '<a href="{}">{}</a>',
+                '{}/change'.format(obj.id),
+                obj.tenants.all()[0],
+            )
+        except:
+            return 'None'
+    user_tenant.short_description = 'Tenant'
+
+    def user_group(self, obj):
+        try:
+            group = obj.groups.all()[0]
+            return format_html(
+                '<a href="{}">{}</a>',
+                '/admin/auth/group/{}/change'.format(group.id),
+                group,
+            )
+        except:
+            return 'None'
+    user_group.short_description = 'Permissions Group'
 
 
 admin.site.unregister(User)
