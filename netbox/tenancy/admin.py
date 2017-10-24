@@ -7,12 +7,12 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from .models import TenantGroup
+from .models import Tenant
 
 
 class M2MTenantGroupAdminForm(forms.ModelForm):
     tenants = forms.ModelMultipleChoiceField(
-        queryset=TenantGroup.objects.all(),
+        queryset=Tenant.objects.all(),
         required=False,
         widget=FilteredSelectMultiple(
           verbose_name=_('Tenants'),
