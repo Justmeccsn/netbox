@@ -79,7 +79,7 @@ class ObjectListView(View):
     def get(self, request):
         # Filter access for query
         try:
-            self.queryset = self.queryset.objects.filter_access(request.user)
+            self.queryset = self.queryset.filter_access(request.user)
         except AttributeError:
             pass
 
