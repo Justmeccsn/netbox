@@ -526,7 +526,7 @@ class BulkEditView(View):
             pk_list = [
                 int(pk)
                 for pk in request.POST.getlist('pk')
-                if pk in allowed_objects
+                if int(pk) in allowed_objects.values_list('pk', flat=True)
             ]
 
         if '_apply' in request.POST:
@@ -681,7 +681,7 @@ class BulkDeleteView(View):
             pk_list = [
                 int(pk)
                 for pk in request.POST.getlist('pk')
-                if pk in allowed_objects
+                if int(pk) in allowed_objects.values_list('pk', flat=True)
             ]
 
         form_cls = self.get_form()
