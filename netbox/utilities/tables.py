@@ -4,6 +4,22 @@ import django_tables2 as tables
 
 from django.utils.safestring import mark_safe
 
+from utilities.middleware import GlobalUserMiddleware
+
+
+class TenantMixinTable(tables.Table):
+    tenant = tables.LinkColumn(
+        'tenancy:tenant',
+        args=[tables.utils.Accessor('tenant.slug')],
+        verbose_name='Tenant'
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(TenantMixinTable, self).__init__(*args, **kwargs)
+        user = GlobalUserMiddleware.user()
+        if not user.is_superuser:
+            self.columns['tenant'].column.visible = False
+
 
 class BaseTable(tables.Table):
     """

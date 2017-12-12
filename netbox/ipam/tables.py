@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, ToggleColumn, TenantMixinTable
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
 
@@ -140,11 +140,10 @@ TENANT_LINK = """
 # VRFs
 #
 
-class VRFTable(BaseTable):
+class VRFTable(TenantMixinTable, BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     rd = tables.Column(verbose_name='RD')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
 
     class Meta(BaseTable.Meta):
         model = VRF
@@ -230,7 +229,7 @@ class RoleTable(BaseTable):
 # Prefixes
 #
 
-class PrefixTable(BaseTable):
+class PrefixTable(TenantMixinTable, BaseTable):
     pk = ToggleColumn()
     prefix = tables.TemplateColumn(PREFIX_LINK, attrs={'th': {'style': 'padding-left: 17px'}})
     status = tables.TemplateColumn(STATUS_LABEL)
@@ -259,7 +258,7 @@ class PrefixDetailTable(PrefixTable):
 # IPAddresses
 #
 
-class IPAddressTable(BaseTable):
+class IPAddressTable(TenantMixinTable, BaseTable):
     pk = ToggleColumn()
     address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
     status = tables.TemplateColumn(STATUS_LABEL)
@@ -309,12 +308,11 @@ class VLANGroupTable(BaseTable):
 # VLANs
 #
 
-class VLANTable(BaseTable):
+class VLANTable(TenantMixinTable, BaseTable):
     pk = ToggleColumn()
     vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     status = tables.TemplateColumn(STATUS_LABEL)
     role = tables.TemplateColumn(VLAN_ROLE_LINK)
 

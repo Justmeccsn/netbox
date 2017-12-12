@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import TenantMixinTable, BaseTable, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
 
@@ -56,11 +56,10 @@ class CircuitTypeTable(BaseTable):
 # Circuits
 #
 
-class CircuitTable(BaseTable):
+class CircuitTable(TenantMixinTable, BaseTable):
     pk = ToggleColumn()
     cid = tables.LinkColumn(verbose_name='ID')
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     a_side = tables.LinkColumn(
         'dcim:site', accessor=Accessor('termination_a.site'), orderable=False,
         args=[Accessor('termination_a.site.slug')]

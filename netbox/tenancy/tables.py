@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import TenantMixinTable, BaseTable, ToggleColumn
 
 from .models import Tenant, TenantGroup
 
@@ -36,7 +36,7 @@ class TenantGroupTable(BaseTable):
 # Tenants
 #
 
-class TenantTable(BaseTable):
+class TenantTable(TenantMixinTable, BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
 
