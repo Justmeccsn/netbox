@@ -385,13 +385,13 @@ class ManufacturerForm(BootstrapMixin, ModelFormFilterQuerySets):
 # Device types
 #
 
-class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
+class DeviceTypeForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     slug = SlugField(slug_source='model')
 
     class Meta:
         model = DeviceType
         fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments', 'tenant_group', 'tenant']
         labels = {
             'interface_ordering': 'Order interfaces by',
         }
