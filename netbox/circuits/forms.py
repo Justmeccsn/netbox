@@ -5,7 +5,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm
+from tenancy.forms import TenancyForm, TenancyBulkForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
@@ -137,11 +137,10 @@ class CircuitCSVForm(ModelFormFilterQuerySets):
         fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
 
 
-class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class CircuitBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
     description = forms.CharField(max_length=100, required=False)
     comments = CommentField(widget=SmallTextarea)

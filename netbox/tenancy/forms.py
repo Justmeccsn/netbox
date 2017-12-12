@@ -89,6 +89,15 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 # Tenancy form extension
 #
+class TenancyBulkForm(FormFilterQuerySets):
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(TenancyBulkForm, self).__init__(*args, **kwargs)
+        user = GlobalUserMiddleware.user()
+        if not user.is_superuser:
+            del self.fields['tenant']
+
 
 class TenancyForm(ChainedFieldsMixin, FormFilterQuerySets):
     tenant_group = forms.ModelChoiceField(

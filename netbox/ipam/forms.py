@@ -6,7 +6,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm
+from tenancy.forms import TenancyForm, TenancyBulkForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, CSVChoiceField,
@@ -69,9 +69,8 @@ class VRFCSVForm(ModelFormFilterQuerySets):
         }
 
 
-class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VRFBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     enforce_unique = forms.NullBooleanField(
         required=False, widget=BulkEditNullBooleanSelect, label='Enforce unique space'
     )
@@ -324,11 +323,10 @@ class PrefixCSVForm(ModelFormFilterQuerySets):
                 raise forms.ValidationError("Multiple VLANs with VID {} found".format(vlan_vid))
 
 
-class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class PrefixBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=add_blank_choice(PREFIX_STATUS_CHOICES), required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     is_pool = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is a pool')
@@ -689,10 +687,9 @@ class IPAddressCSVForm(ModelFormFilterQuerySets):
         return ipaddress
 
 
-class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class IPAddressBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=add_blank_choice(IPADDRESS_STATUS_CHOICES), required=False)
     role = forms.ChoiceField(choices=add_blank_choice(IPADDRESS_ROLE_CHOICES), required=False)
     description = forms.CharField(max_length=100, required=False)
@@ -858,11 +855,10 @@ class VLANCSVForm(ModelFormFilterQuerySets):
                     raise forms.ValidationError("Global VLAN group {} not found".format(group_name))
 
 
-class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VLANBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=add_blank_choice(VLAN_STATUS_CHOICES), required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)

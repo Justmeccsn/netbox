@@ -9,7 +9,7 @@ from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
-from tenancy.forms import TenancyForm
+from tenancy.forms import TenancyForm, TenancyBulkForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
@@ -132,10 +132,9 @@ class SiteCSVForm(ModelFormFilterQuerySets):
         }
 
 
-class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class SiteBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
     region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
 
     class Meta:
@@ -288,11 +287,10 @@ class RackCSVForm(ModelFormFilterQuerySets):
                 raise forms.ValidationError("Rack group {} not found for site {}".format(group_name, site))
 
 
-class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class RackBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     role = forms.ModelChoiceField(queryset=RackRole.objects.all(), required=False)
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
@@ -846,11 +844,10 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
                 raise forms.ValidationError("Parent device/bay ({} {}) not found".format(parent, device_bay_name))
 
 
-class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class DeviceBulkEditForm(BootstrapMixin, TenancyBulkForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
