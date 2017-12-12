@@ -124,8 +124,11 @@ class TenancyForm(ChainedFieldsMixin, FormFilterQuerySets):
             self.initial['tenant'] = user.tenants.first()
             self.fields['tenant'].queryset = user.tenants.all()
             self.fields['tenant'].empty_label = None
+            self.fields['tenant'].widget = forms.HiddenInput()
 
             self.fields['tenant_group'].empty_label = None
+            self.fields['tenant_group'].widget = forms.HiddenInput()
+
             try:
                 self.initial['tenant_group'] = user.tenants.first().group
             except AttributeError:

@@ -542,12 +542,12 @@ class DeviceBayTemplateCreateForm(DeviceComponentForm):
 # Device roles
 #
 
-class DeviceRoleForm(BootstrapMixin, ModelFormFilterQuerySets):
+class DeviceRoleForm(BootstrapMixin, TenancyForm, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug', 'color', 'tenant_group', 'tenant']
 
 
 #
