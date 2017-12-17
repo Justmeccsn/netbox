@@ -4,49 +4,13 @@ import threading
 
 from django.http import HttpResponseRedirect
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.urls import reverse
+
+from extras.models import CustomAnonymous
+
 
 BASE_PATH = getattr(settings, 'BASE_PATH', False)
 LOGIN_REQUIRED = getattr(settings, 'LOGIN_REQUIRED', False)
-
-
-class EmptyTenants(object):
-    _prefetch_related_lookups = None
-
-    def first(self):
-        return None
-
-    def all(self):
-        return EmptyTenants()
-
-    def __iter__(self):
-        return []
-
-    def iterator(self):
-        return self.__iter__()
-
-
-class CustomAnonymous(User):
-    is_anonymous = True
-    is_authenticated = False
-    is_active = False
-    is_staff = False
-    is_superuser = False
-
-    tenants = EmptyTenants()
-
-    def set_password(self, *args, **kwargs):
-        raise NotImplemented
-
-    def check_password(self, *args, **kwargs):
-        raise NotImplemented
-
-    def save(self, *args, **kwargs):
-        raise NotImplemented
-
-    def delete(self, *args, **kwargs):
-        raise NotImplemented
 
 
 class LoginRequiredMiddleware(object):
