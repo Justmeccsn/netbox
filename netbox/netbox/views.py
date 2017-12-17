@@ -25,8 +25,8 @@ from secrets.tables import SecretTable
 from tenancy.filters import TenantFilter
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
+from utilities.middleware import GlobalUserMiddleware
 from .forms import SearchForm
-
 
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((
@@ -182,12 +182,19 @@ class SearchView(View):
             else:
                 obj_types = SEARCH_TYPES.keys()
 
+            user = GlobalUserMiddleware.user()
+
             for obj_type in obj_types:
 
                 queryset = SEARCH_TYPES[obj_type]['queryset']
                 filter_cls = SEARCH_TYPES[obj_type]['filter']
                 table = SEARCH_TYPES[obj_type]['table']
                 url = SEARCH_TYPES[obj_type]['url']
+
+                try:
+                    queryset = queryset.filter_access(user=user)
+                except AttributeError:
+                    pass
 
                 # Construct the results table for this object type
                 filtered_queryset = filter_cls({'q': form.cleaned_data['q']}, queryset=queryset).qs

@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 from django import forms
 
 from utilities.forms import BootstrapMixin
+from utilities.middleware import GlobalUserMiddleware
 
 
-OBJ_TYPE_CHOICES = (
+OBJ_TYPE_CHOICES = [
     ('', 'All Objects'),
     ('Circuits', (
         ('provider', 'Providers'),
@@ -24,12 +25,17 @@ OBJ_TYPE_CHOICES = (
         ('ipaddress', 'IP addresses'),
         ('vlan', 'VLANs'),
     )),
-    ('Secrets', (
+]
+
+OBJ_TYPE_CHOICES_SECRETS = (
+    'Secrets', (
         ('secret', 'Secrets'),
-    )),
-    ('Tenancy', (
+    )
+)
+OBJ_TYPE_CHOICES_TENANCY = (
+    'Tenancy', (
         ('tenant', 'Tenants'),
-    )),
+    )
 )
 
 
@@ -40,3 +46,11 @@ class SearchForm(BootstrapMixin, forms.Form):
     obj_type = forms.ChoiceField(
         choices=OBJ_TYPE_CHOICES, required=False, label='Type'
     )
+
+    def __init__(self, *args, **kwargs):
+        super(SearchForm, self).__init__(*args, **kwargs)
+        user = GlobalUserMiddleware.user()
+        if user.has_perm('secrets.view'):
+            self.fields['obj_type'].choices += [OBJ_TYPE_CHOICES_SECRETS]
+        if user.has_perm('tenancy.view'):
+            self.fields['obj_type'].choices += [OBJ_TYPE_CHOICES_TENANCY]
