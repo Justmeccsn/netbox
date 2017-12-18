@@ -515,7 +515,7 @@ class VLANGroup(models.Model):
     """
     name = models.CharField(max_length=50)
     slug = models.SlugField()
-    site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=True, null=True)
+    site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=False, null=False)
 
     objects = VLANGroupQuerySet.as_manager()
 
