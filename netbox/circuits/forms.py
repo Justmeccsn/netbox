@@ -19,13 +19,13 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 # Providers
 #
 
-class ProviderForm(BootstrapMixin, CustomFieldForm):
+class ProviderForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 
     class Meta:
         model = Provider
-        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
+        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tenant', 'tenant_group']
         widgets = {
             'noc_contact': SmallTextarea(attrs={'rows': 5}),
             'admin_contact': SmallTextarea(attrs={'rows': 5}),

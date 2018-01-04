@@ -35,7 +35,7 @@ class ProviderView(View):
     def get(self, request, slug):
 
         provider = get_object_or_404(
-            Provider.filter_access(
+            Provider.objects.filter_access(
                 request.user,
             ),
             slug=slug,
