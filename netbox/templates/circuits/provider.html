@@ -135,7 +135,7 @@
                 <tr>
                     <th>Circuit ID</th>
                     <th>Type</th>
-                    <th>Tenant</th>
+                    {% if user.is_superuser %}<th>Tenant</th>{% endif %}
                     <th>A Side</th>
                     <th>Z Side</th>
                     <th>Description</th>
@@ -148,13 +148,15 @@
                         <td>
                             <a href="{% url 'circuits:circuit_list' %}?type={{ c.type.slug }}">{{ c.type }}</a>
                         </td>
-                        <td>
-                            {% if c.tenant %}
-                                <a href="{% url 'tenancy:tenant' slug=c.tenant.slug %}">{{ c.tenant }}</a>
-                            {% else %}
-                                <span class="text-muted">&mdash;</span>
-                            {% endif %}
-                        </td>
+                        {% if user.is_superuser %}
+                            <td>
+                                {% if c.tenant %}
+                                    <a href="{% url 'tenancy:tenant' slug=c.tenant.slug %}">{{ c.tenant }}</a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        {% endif %}
                         <td>
                             {% if c.termination_a %}
                                 <a href="{% url 'dcim:site' slug=c.termination_a.site.slug %}">{{ c.termination_a.site }}</a>
