@@ -99,6 +99,15 @@ class TenancyBulkForm(FormFilterQuerySets):
             del self.fields['tenant']
 
 
+class TenancyCSVForm(object):
+    def save(self, *args, **kwargs):
+        if 'tenant' not in self.fields:
+            self.instance.tenant = GlobalUserMiddleware.user().tenants.first()
+            return super(TenancyCSVForm, self).save(*args, **kwargs)
+        else:
+            return super(TenancyCSVForm, self).save(*args, **kwargs)
+
+
 class TenancyForm(ChainedFieldsMixin, FormFilterQuerySets):
     tenant_group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),

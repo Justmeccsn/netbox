@@ -5,7 +5,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm, TenancyBulkForm
+from tenancy.forms import TenancyForm, TenancyBulkForm, TenancyCSVForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
@@ -39,7 +39,7 @@ class ProviderForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class ProviderCSVForm(ModelFormFilterQuerySets):
+class ProviderCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
