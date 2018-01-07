@@ -60,20 +60,22 @@
                     <td>Type</td>
                     <td><a href="{{ circuit.type.get_absolute_url }}">{{ circuit.type }}</a></td>
                 </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if circuit.tenant %}
-                            {% if circuit.tenant.group %}
-                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group.name }}</a>
-                                <i class="fa fa-angle-right"></i>
+                {% if user.is_superuser %}
+                    <tr>
+                        <td>Tenant</td>
+                        <td>
+                            {% if circuit.tenant %}
+                                {% if circuit.tenant.group %}
+                                    <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group.name }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
-                            <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td>Install Date</td>
                     <td>
