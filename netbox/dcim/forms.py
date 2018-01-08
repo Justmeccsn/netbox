@@ -218,7 +218,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackCSVForm(ModelFormFilterQuerySets):
+class RackCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
