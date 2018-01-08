@@ -650,7 +650,7 @@ class BulkDeleteView(View):
     """
     cls = None
     parent_cls = None
-    querdyset = None
+    queryset = None
     filter = None
     table = None
     template_name = 'utilities/obj_bulk_delete.html'
