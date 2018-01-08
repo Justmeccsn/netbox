@@ -71,20 +71,22 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if site.tenant %}
-                            {% if site.tenant.group %}
-                                <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group.name }}</a>
-                                <i class="fa fa-angle-right"></i>
+                {% if user.is_superuser %}
+                    <tr>
+                        <td>Tenant</td>
+                        <td>
+                            {% if site.tenant %}
+                                {% if site.tenant.group %}
+                                    <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group.name }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ site.tenant.get_absolute_url }}">{{ site.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
-                            <a href="{{ site.tenant.get_absolute_url }}">{{ site.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td>Facility</td>
                     <td>
