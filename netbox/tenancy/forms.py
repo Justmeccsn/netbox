@@ -100,6 +100,12 @@ class TenancyBulkForm(FormFilterQuerySets):
 
 
 class TenancyCSVForm(object):
+    def __init__(self, *args, **kwargs):
+        super(TenancyCSVForm, self).__init__(*args, **kwargs)
+        user = GlobalUserMiddleware.user()
+        if not user.is_superuser:
+            del self.fields['tenant']
+
     def save(self, *args, **kwargs):
         if 'tenant' not in self.fields:
             self.instance.tenant = GlobalUserMiddleware.user().tenants.first()

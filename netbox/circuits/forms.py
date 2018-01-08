@@ -105,7 +105,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class CircuitCSVForm(ModelFormFilterQuerySets):
+class CircuitCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
