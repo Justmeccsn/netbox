@@ -9,7 +9,7 @@ from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
-from tenancy.forms import TenancyForm, TenancyBulkForm
+from tenancy.forms import TenancyForm, TenancyBulkForm, TenancyCSVForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
@@ -99,7 +99,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteCSVForm(ModelFormFilterQuerySets):
+class SiteCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     region = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
