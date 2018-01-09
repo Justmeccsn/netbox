@@ -552,12 +552,12 @@ class DeviceRoleForm(BootstrapMixin, TenancyForm, ModelFormFilterQuerySets):
 # Platforms
 #
 
-class PlatformForm(BootstrapMixin, ModelFormFilterQuerySets):
+class PlatformForm(BootstrapMixin, TenancyForm, ModelFormFilterQuerySets):
     slug = SlugField()
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug', 'napalm_driver', 'rpc_client']
+        fields = ['name', 'slug', 'napalm_driver', 'rpc_client', 'tenant_group', 'tenant']
 
 
 #
