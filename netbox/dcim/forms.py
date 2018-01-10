@@ -692,7 +692,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceCSVForm(ModelFormFilterQuerySets):
+class BaseDeviceCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
