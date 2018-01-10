@@ -4,6 +4,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
+from tenancy.form_extensions import TenancyForm
 from utilities.forms import BootstrapMixin, BulkEditForm, FormFilterQuerySets, LaxURLField, ModelFormFilterQuerySets
 from .models import (
     CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue,
@@ -162,8 +163,8 @@ class CustomFieldFilterForm(FormFilterQuerySets):
             self.fields[name] = field
 
 
-class ImageAttachmentForm(BootstrapMixin, ModelFormFilterQuerySets):
+class ImageAttachmentForm(TenancyForm, BootstrapMixin, ModelFormFilterQuerySets):
 
     class Meta:
         model = ImageAttachment
-        fields = ['name', 'image']
+        fields = ['name', 'image', 'tenant']

@@ -366,6 +366,9 @@ class ImageAttachment(models.Model):
     image_width = models.PositiveSmallIntegerField()
     name = models.CharField(max_length=50, blank=True)
     created = models.DateTimeField(auto_now_add=True)
+    tenant = models.ForeignKey('tenancy.Tenant', blank=True, null=True, related_name='images', on_delete=models.PROTECT)
+
+    objects = ObjectFilterQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']

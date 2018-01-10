@@ -6,7 +6,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm, TenancyBulkForm
+from tenancy.form_extensions import TenancyForm, TenancyBulkForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, CSVChoiceField,
