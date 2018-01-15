@@ -792,7 +792,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VLANCSVForm(ModelFormFilterQuerySets):
+class VLANCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
