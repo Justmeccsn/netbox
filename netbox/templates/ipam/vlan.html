@@ -82,20 +82,22 @@
                     <td>Name</td>
                     <td>{{ vlan.name }}</td>
                 </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if vlan.tenant %}
-                            {% if vlan.tenant.group %}
-                                <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group.name }}</a>
-                                <i class="fa fa-angle-right"></i>
+                {% if user.is_superuser %}
+                    <tr>
+                        <td>Tenant</td>
+                        <td>
+                            {% if vlan.tenant %}
+                                {% if vlan.tenant.group %}
+                                    <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group.name }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
-                            <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td>Status</td>
                     <td>
