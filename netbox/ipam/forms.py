@@ -232,7 +232,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vlan'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
 
-class PrefixCSVForm(ModelFormFilterQuerySets):
+class PrefixCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
