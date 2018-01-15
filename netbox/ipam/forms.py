@@ -591,7 +591,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].queryset = query.filter_access(GlobalUserMiddleware.user())
 
 
-class IPAddressCSVForm(ModelFormFilterQuerySets):
+class IPAddressCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
