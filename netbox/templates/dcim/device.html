@@ -162,7 +162,7 @@
         {% with device.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated and perms.secrets.view %}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Secrets</strong>
