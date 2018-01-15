@@ -26,6 +26,15 @@ class TenancyCSVForm(object):
     def __init__(self, *args, **kwargs):
         super(TenancyCSVForm, self).__init__(*args, **kwargs)
         user = GlobalUserMiddleware.user()
+        self.fields['tenant'] = forms.ModelChoiceField(
+            queryset=Tenant.objects.all(),
+            required=False,
+            to_field_name='name',
+            help_text='Name of assigned tenant',
+            error_messages={
+                'invalid_choice': 'Tenant not found.',
+            }
+        )
         if not user.is_superuser:
             del self.fields['tenant']
 

@@ -123,7 +123,7 @@ class AggregateForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class AggregateCSVForm(ModelFormFilterQuerySets):
+class AggregateCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -135,7 +135,7 @@ class AggregateCSVForm(ModelFormFilterQuerySets):
 
     class Meta:
         model = Aggregate
-        fields = ['prefix', 'rir', 'date_added', 'description']
+        fields = ['prefix', 'rir', 'date_added', 'description', 'tenant']
 
 
 class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
