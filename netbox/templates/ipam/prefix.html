@@ -25,27 +25,29 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if prefix.tenant %}
-                            {% if prefix.tenant.group %}
-                                <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group.name }}</a>
-                                <i class="fa fa-angle-right"></i>
+                {% if user.is_superuser %}
+                    <tr>
+                        <td>Tenant</td>
+                        <td>
+                            {% if prefix.tenant %}
+                                {% if prefix.tenant.group %}
+                                    <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group.name }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
+                            {% elif prefix.vrf.tenant %}
+                                {% if prefix.vrf.tenant.group %}
+                                    <a href="{{ prefix.vrf.tenant.group.get_absolute_url }}">{{ prefix.vrf.tenant.group.name }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ prefix.vrf.tenant.get_absolute_url }}">{{ prefix.vrf.tenant }}</a>
+                                <label class="label label-info">Inherited</label>
+                            {% else %}
+                                <span class="text-muted">None</span>
                             {% endif %}
-                            <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
-                        {% elif prefix.vrf.tenant %}
-                            {% if prefix.vrf.tenant.group %}
-                                <a href="{{ prefix.vrf.tenant.group.get_absolute_url }}">{{ prefix.vrf.tenant.group.name }}</a>
-                                <i class="fa fa-angle-right"></i>
-                            {% endif %}
-                            <a href="{{ prefix.vrf.tenant.get_absolute_url }}">{{ prefix.vrf.tenant }}</a>
-                            <label class="label label-info">Inherited</label>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td>Aggregate</td>
                     <td>
