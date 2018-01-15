@@ -610,7 +610,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 class ServiceQuerySet(ObjectFilterQuerySet):
 
     def build_args(self, user):
-        from netbox.dcim.models import Device
+        from dcim.models import Device
         return models.Q(
             device__in=Device.objects.filter_access(user)
         )
