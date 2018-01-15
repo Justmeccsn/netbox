@@ -6,7 +6,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.form_extensions import TenancyForm, TenancyBulkForm
+from tenancy.form_extensions import TenancyForm, TenancyBulkForm, TenancyCSVForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, CSVChoiceField,
@@ -50,7 +50,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VRFCSVForm(ModelFormFilterQuerySets):
+class VRFCSVForm(TenancyCSVForm, ModelFormFilterQuerySets):
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
