@@ -39,8 +39,8 @@ _patterns = [
     url(r'^api/dcim/', include('dcim.api.urls')),
     url(r'^api/extras/', include('extras.api.urls')),
     url(r'^api/ipam/', include('ipam.api.urls')),
-    url(r'^api/secrets/', include('secrets.api.urls')),
-    url(r'^api/tenancy/', include('tenancy.api.urls')),
+    # url(r'^api/secrets/', include('secrets.api.urls')),
+    # url(r'^api/tenancy/', include('tenancy.api.urls')),
     url(r'^api/docs/', swagger_view, name='api_docs'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
