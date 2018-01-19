@@ -59,18 +59,26 @@ class GlobalUserMiddleware(object):
         except KeyError:
             return CustomAnonymous()
 
+    @classmethod
+    def set_user(cls, user):
+        cls._user[threading.current_thread()] = user
+
+    @classmethod
+    def clean_thread(cls):
+        cls._user.pop(threading.current_thread(), None)
+
     def __init__(self, next_layer=None):
         self.get_response = next_layer
 
     def process_request(self, request):
-        self._user[threading.current_thread()] = request.user
+        self.set_user(request.user)
 
     def process_response(self, request, response):
-        self._user.pop(threading.current_thread(), None)
+        self.clean_thread()
         return response
 
     def process_exception(self, request, exception):
-        self._user.pop(threading.current_thread(), None)
+        self.clean_thread()
         raise exception
 
     def __call__(self, request):

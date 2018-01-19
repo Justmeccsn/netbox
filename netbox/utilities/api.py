@@ -12,6 +12,7 @@ from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.views import get_view_name as drf_get_view_name
 
 from users.models import Token
+from utilities.middleware import GlobalUserMiddleware
 
 
 WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
@@ -37,15 +38,19 @@ class TokenAuthentication(authentication.TokenAuthentication):
         try:
             token = model.objects.select_related('user').get(key=key)
         except model.DoesNotExist:
+            GlobalUserMiddleware.clean_thread()
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
+            GlobalUserMiddleware.clean_thread()
             raise exceptions.AuthenticationFailed("Token expired")
 
         if not token.user.is_active:
+            GlobalUserMiddleware.clean_thread()
             raise exceptions.AuthenticationFailed("User inactive")
 
+        GlobalUserMiddleware.set_user(user=token.user)
         return token.user, token
 
 
