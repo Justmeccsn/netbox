@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import Count
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -10,7 +11,6 @@ from utilities.forms import (
 )
 from utilities.middleware import GlobalUserMiddleware
 from .models import Tenant, TenantGroup
-
 
 #
 # Tenant groups
@@ -61,7 +61,7 @@ class TenantCSVForm(ModelFormFilterQuerySets):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments', 'users']
+        fields = ['name', 'slug', 'group', 'description', 'comments']
         help_texts = {
             'name': 'Tenant name',
             'comments': 'Free-form comments'
