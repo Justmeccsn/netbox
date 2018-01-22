@@ -29,7 +29,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
     are said to exist in the "global" table.)
     """
     name = models.CharField(max_length=50)
-    rd = models.CharField(max_length=21, unique=True, verbose_name='Route distinguisher')
+    rd = models.CharField(max_length=21, unique=False, verbose_name='Route distinguisher')
     tenant = models.ForeignKey(Tenant, related_name='vrfs', blank=True, null=True, on_delete=models.PROTECT)
     enforce_unique = models.BooleanField(default=True, verbose_name='Enforce unique space',
                                          help_text="Prevent duplicate prefixes/IP addresses within this VRF")
@@ -44,6 +44,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         ordering = ['name']
         verbose_name = 'VRF'
         verbose_name_plural = 'VRFs'
+        unique_together = ['rd', 'tenant']
 
     def __str__(self):
         return self.display_name or super(VRF, self).__str__()
@@ -175,8 +176,8 @@ class Role(models.Model):
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
     "Management."
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     weight = models.PositiveSmallIntegerField(default=1000)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='roles', on_delete=models.PROTECT)
 
@@ -184,6 +185,10 @@ class Role(models.Model):
 
     class Meta:
         ordering = ['weight', 'name']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'slug'],
+        ]
 
     def __str__(self):
         return self.name
