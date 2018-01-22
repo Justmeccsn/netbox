@@ -71,8 +71,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
@@ -94,6 +94,10 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'slug'],
+        ]
 
     def __str__(self):
         return self.name
@@ -179,8 +183,8 @@ class RackRole(models.Model):
     """
     Racks can be organized by functional role, similar to Devices.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     color = ColorField()
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='rack_roles', on_delete=models.PROTECT)
 
@@ -188,6 +192,10 @@ class RackRole(models.Model):
 
     class Meta:
         ordering = ['name']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'slug'],
+        ]
 
     def __str__(self):
         return self.name
@@ -521,8 +529,8 @@ class DeviceType(models.Model, CustomFieldModel):
     class Meta:
         ordering = ['manufacturer', 'model']
         unique_together = [
-            ['manufacturer', 'model'],
-            ['manufacturer', 'slug'],
+            ['manufacturer', 'model', 'tenant'],
+            ['manufacturer', 'slug', 'tenant'],
         ]
 
     def __str__(self):
@@ -767,8 +775,8 @@ class DeviceRole(models.Model):
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     color = ColorField()
     tenant = models.ForeignKey(Tenant, related_name='device_roles', blank=True, null=True, on_delete=models.PROTECT)
 
@@ -776,6 +784,10 @@ class DeviceRole(models.Model):
 
     class Meta:
         ordering = ['name']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'slug'],
+        ]
 
     def __str__(self):
         return self.name
@@ -791,8 +803,8 @@ class Platform(models.Model):
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
     specifying an remote procedure call (RPC) client.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     napalm_driver = models.CharField(max_length=50, blank=True, verbose_name='NAPALM driver',
                                      help_text="The name of the NAPALM driver to use when interacting with devices.")
     rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True,
@@ -803,6 +815,10 @@ class Platform(models.Model):
 
     class Meta:
         ordering = ['name']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'slug'],
+        ]
 
     def __str__(self):
         return self.name
@@ -835,10 +851,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     device_role = models.ForeignKey('DeviceRole', related_name='devices', on_delete=models.PROTECT)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='devices', on_delete=models.PROTECT)
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
-    name = NullableCharField(max_length=64, blank=True, null=True, unique=True)
+    name = NullableCharField(max_length=64, blank=True, null=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
     asset_tag = NullableCharField(
-        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        max_length=50, blank=True, null=True, verbose_name='Asset tag',
         help_text='A unique tag used to identify this device'
     )
     site = models.ForeignKey('Site', related_name='devices', on_delete=models.PROTECT)
@@ -870,7 +886,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = ['rack', 'position', 'face']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'asset_tag'],
+            ['rack', 'position', 'face'],
+        ]
         permissions = (
             ('napalm_read', 'Read-only access to devices via NAPALM'),
             ('napalm_write', 'Read/write access to devices via NAPALM'),
@@ -1410,7 +1430,7 @@ class InventoryItem(models.Model):
     part_id = models.CharField(max_length=50, verbose_name='Part ID', blank=True)
     serial = models.CharField(max_length=50, verbose_name='Serial number', blank=True)
     asset_tag = NullableCharField(
-        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        max_length=50, blank=True, null=True, verbose_name='Asset tag',
         help_text='A unique tag used to identify this item'
     )
     discovered = models.BooleanField(default=False, verbose_name='Discovered')
@@ -1420,7 +1440,10 @@ class InventoryItem(models.Model):
 
     class Meta:
         ordering = ['device__id', 'parent__id', 'name']
-        unique_together = ['device', 'parent', 'name']
+        unique_together = [
+            ['device', 'parent', 'name'],
+            ['device', 'asset_tag'],
+        ]
 
     def __str__(self):
         return self.name
