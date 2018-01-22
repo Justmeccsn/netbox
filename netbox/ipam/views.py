@@ -644,6 +644,8 @@ class IPAddressView(View):
             vrf=ipaddress.vrf, address=str(ipaddress.address)
         ).exclude(
             pk=ipaddress.pk
+        ).filter_access(
+            user=request.user,
         ).select_related(
             'interface__device', 'nat_inside'
         )
