@@ -20,8 +20,8 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     account = models.CharField(max_length=30, blank=True, verbose_name='Account number')
     portal_url = models.URLField(blank=True, verbose_name='Portal')
@@ -37,6 +37,10 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
+        unique_together = [
+            ['tenant', 'name'],
+            ['tenant', 'slug'],
+        ]
 
     def __str__(self):
         return self.name
